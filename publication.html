@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Publier une annonce — LocSenegal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="profil.html" class="nav-link">Mon profil</a>
+      <a href="top.html" class="nav-link">⭐ Top</a>
+      <a href="deconnexion.html" class="nav-link" style="color:#ef4444">Déconnexion</a>
+    </nav>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="pub-page container">
+  <div class="pub-header">
+    <h1 class="form-title">📝 Publier une annonce</h1>
+    <p class="form-sub">Votre annonce sera visible immédiatement par des milliers de locataires</p>
+  </div>
+
+  <div class="pub-layout">
+    <!-- Formulaire -->
+    <div class="pub-form-wrap">
+      <form id="pubForm">
+
+        <!-- Photos -->
+        <div class="pub-section">
+          <h3 class="pub-section-title">📸 Photos <span class="required">*</span></h3>
+          <p class="pub-section-sub">Jusqu'à 4 photos. La première sera la photo principale.</p>
+          <div class="photo-grid" id="photoGrid">
+            <label class="photo-add" id="photoAddLabel">
+              <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
+              <span class="photo-add-icon">+</span>
+              <span class="photo-add-text">Ajouter des photos</span>
+            </label>
+          </div>
+          <div class="upload-progress" id="uploadProgress" style="display:none">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <span id="progressText">Envoi en cours…</span>
+          </div>
+        </div>
+
+        <!-- Infos de base -->
+        <div class="pub-section">
+          <h3 class="pub-section-title">🏠 Informations</h3>
+          <div class="field">
+            <label>Titre de l'annonce *</label>
+            <input type="text" id="title" placeholder="Ex: Studio meublé calme à Pikine" required maxlength="80">
+            <span class="field-hint" id="titleCount">0/80 caractères</span>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Type de logement *</label>
+              <select id="type" required>
+                <option value="">Sélectionner</option>
+                <option>Chambre</option>
+                <option>Studio</option>
+                <option>Appartement</option>
+                <option>Villa</option>
+                <option>Bureau</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Localité / Quartier *</label>
+              <input type="text" id="locality" placeholder="Ex: Grand Yoff, Dakar" required list="quartiersList">
+              <datalist id="quartiersList">
+                <option>Guédiawaye</option><option>Pikine</option><option>Grand Yoff</option>
+                <option>Sacré-Cœur</option><option>Yoff</option><option>Mermoz</option>
+                <option>Liberté 6</option><option>Parcelles Assainies</option><option>Plateau</option>
+                <option>Ouakam</option><option>Ngor</option><option>Almadies</option>
+                <option>Thiès</option><option>Saint-Louis</option><option>Ziguinchor</option>
+              </datalist>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Prix mensuel (F CFA) *</label>
+              <div class="price-input-wrap">
+                <input type="number" id="price" placeholder="Ex: 35000" min="5000" required>
+                <span class="price-unit">F/mois</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Numéro de contact *</label>
+              <input type="tel" id="contact" placeholder="77 123 4567" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="pub-section">
+          <h3 class="pub-section-title">📄 Description</h3>
+          <div class="field">
+            <label>Décrivez votre logement</label>
+            <textarea id="desc" rows="5" placeholder="Proximité transports, commodités, état du logement, conditions de location..."></textarea>
+            <span class="field-hint" id="descCount">0/500 caractères</span>
+          </div>
+        </div>
+
+        <!-- Équipements -->
+        <div class="pub-section">
+          <h3 class="pub-section-title">🛋️ Équipements</h3>
+          <div class="equipements-grid">
+            <label class="equip-chip"><input type="checkbox" value="Meublé"> Meublé</label>
+            <label class="equip-chip"><input type="checkbox" value="Eau incluse"> 💧 Eau incluse</label>
+            <label class="equip-chip"><input type="checkbox" value="Électricité incluse"> ⚡ Électricité</label>
+            <label class="equip-chip"><input type="checkbox" value="Climatisation"> ❄️ Climatisation</label>
+            <label class="equip-chip"><input type="checkbox" value="Parking"> 🚗 Parking</label>
+            <label class="equip-chip"><input type="checkbox" value="Gardien"> 🔒 Gardien</label>
+            <label class="equip-chip"><input type="checkbox" value="Wi-Fi"> 📶 Wi-Fi</label>
+            <label class="equip-chip"><input type="checkbox" value="Balcon"> 🌿 Balcon</label>
+          </div>
+        </div>
+
+        <div id="pubError" class="form-error" style="display:none"></div>
+
+        <div class="pub-actions">
+          <a href="profil.html" class="btn-ghost">Annuler</a>
+          <button type="submit" class="btn-primary" id="pubBtn" style="min-width:160px">
+            Publier l'annonce
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Aperçu -->
+    <div class="pub-preview-wrap">
+      <h3 class="pub-section-title">👁 Aperçu</h3>
+      <div class="preview-card" id="previewCard">
+        <div class="preview-img-wrap">
+          <div class="preview-img-placeholder" id="previewImgPlaceholder">📷 Photo</div>
+          <img id="previewImg" style="display:none;width:100%;height:180px;object-fit:cover;border-radius:12px 12px 0 0">
+        </div>
+        <div class="preview-body">
+          <div class="card-type-badge" style="position:static;display:inline-block;margin-bottom:8px" id="previewType">Type</div>
+          <h3 id="previewTitle" style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">Titre de l'annonce</h3>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:8px" id="previewLoc">📍 Localité</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green-dark)" id="previewPrice">— F/mois</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">L'aperçu se met à jour en temps réel</p>
+
+      <div class="top-promo">
+        <div class="top-promo-icon">⭐</div>
+        <div>
+          <strong>Boostez avec Top Annonce</strong>
+          <p>3x plus de visibilité pour 2 000 F CFA</p>
+          <a href="top.html" style="color:var(--green-dark);font-size:13px;font-weight:700">En savoir plus →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<style>
+.pub-page { padding: 40px 20px 80px; }
+.pub-header { margin-bottom: 32px; }
+.pub-layout { display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start; }
+.pub-section { background: var(--white); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); }
+.pub-section-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+.pub-section-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.required { color: var(--red); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.price-input-wrap { position: relative; }
+.price-input-wrap input { padding-right: 64px; width: 100%; }
+.price-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); font-weight: 600; }
+.photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.photo-add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; aspect-ratio: 1; border: 2px dashed var(--border); border-radius: 10px; cursor: pointer; transition: border-color .15s, background .15s; background: var(--bg); }
+.photo-add:hover { border-color: var(--green); background: var(--green-pale); }
+.photo-add-icon { font-size: 24px; color: var(--muted); }
+.photo-add-text { font-size: 11px; color: var(--muted); font-weight: 600; text-align: center; }
+.photo-thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb-del { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 6px; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; width: 0%; }
+.equipements-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.equip-chip { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 100px; background: var(--bg); border: 1.5px solid var(--border); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.equip-chip input { display: none; }
+.equip-chip:has(input:checked) { background: var(--green-pale); border-color: var(--green); color: var(--green-dark); }
+.pub-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+.pub-preview-wrap { position: sticky; top: 80px; }
+.preview-card { background: var(--white); border-radius: 14px; border: 1.5px solid var(--border); overflow: hidden; margin-bottom: 16px; }
+.preview-img-placeholder { height: 180px; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); display: flex; align-items: center; justify-content: center; font-size: 32px; color: #94a3b8; }
+.preview-body { padding: 14px; }
+.top-promo { display: flex; gap: 12px; align-items: flex-start; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 14px; margin-top: 16px; }
+.top-promo-icon { font-size: 24px; flex-shrink: 0; }
+.top-promo strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.top-promo p { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.form-error { background: #fde8e8; color: #b91c1c; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+@media(max-width: 900px) {
+  .pub-layout { grid-template-columns: 1fr; }
+  .pub-preview-wrap { display: none; }
+  .field-row { grid-template-columns: 1fr; }
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+let currentUser = null;
+let photoFiles = [];
+let photoURLs = [];
+
+const showToast = (msg, type='info') => {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`; t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+};
+
+// Vérifier auth
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    showToast('⚠️ Connectez-vous pour publier', 'error');
+    setTimeout(() => window.location.href = 'connexion.html', 1500);
+  } else {
+    currentUser = user;
+  }
+});
+
+// Aperçu temps réel
+['title','type','locality','price'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updatePreview);
+});
+function updatePreview() {
+  document.getElementById('previewTitle').textContent = document.getElementById('title').value || 'Titre de l\'annonce';
+  document.getElementById('previewType').textContent = document.getElementById('type').value || 'Type';
+  document.getElementById('previewLoc').textContent = '📍 ' + (document.getElementById('locality').value || 'Localité');
+  const price = document.getElementById('price').value;
+  document.getElementById('previewPrice').textContent = price ? Number(price).toLocaleString('fr-FR') + ' F/mois' : '— F/mois';
+}
+
+// Compteurs
+document.getElementById('title').addEventListener('input', function() {
+  document.getElementById('titleCount').textContent = this.value.length + '/80 caractères';
+  updatePreview();
+});
+document.getElementById('desc').addEventListener('input', function() {
+  document.getElementById('descCount').textContent = this.value.length + '/500 caractères';
+});
+
+// Gestion photos
+document.getElementById('photoInput').addEventListener('change', (e) => {
+  const files = Array.from(e.target.files).slice(0, 4 - photoFiles.length);
+  files.forEach(file => {
+    if (photoFiles.length >= 4) return;
+    photoFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      addPhotoThumb(ev.target.result, photoFiles.length - 1);
+      if (photoFiles.length === 1) {
+        document.getElementById('previewImg').src = ev.target.result;
+        document.getElementById('previewImg').style.display = 'block';
+        document.getElementById('previewImgPlaceholder').style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  if (photoFiles.length >= 4) document.getElementById('photoAddLabel').style.display = 'none';
+});
+
+function addPhotoThumb(src, idx) {
+  const grid = document.getElementById('photoGrid');
+  const thumb = document.createElement('div');
+  thumb.className = 'photo-thumb';
+  thumb.id = `thumb-${idx}`;
+  thumb.innerHTML = `<img src="${src}"><button type="button" class="photo-thumb-del" onclick="removePhoto(${idx})">✕</button>`;
+  grid.insertBefore(thumb, document.getElementById('photoAddLabel'));
+}
+
+window.removePhoto = (idx) => {
+  photoFiles.splice(idx, 1);
+  document.getElementById(`thumb-${idx}`)?.remove();
+  document.getElementById('photoAddLabel').style.display = 'flex';
+  // Ré-indexer
+  photoFiles.forEach((_, i) => {
+    const t = document.querySelector(`.photo-thumb:nth-child(${i+1})`);
+    if (t) t.id = `thumb-${i}`;
+  });
+};
+
+// Soumettre
+document.getElementById('pubForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentUser) { window.location.href = 'connexion.html'; return; }
+
+  const btn = document.getElementById('pubBtn');
+  btn.textContent = 'Publication…'; btn.disabled = true;
+  document.getElementById('pubError').style.display = 'none';
+
+  try {
+    // Upload photos
+    photoURLs = [];
+    if (photoFiles.length > 0) {
+      document.getElementById('uploadProgress').style.display = 'block';
+      for (let i = 0; i < photoFiles.length; i++) {
+        document.getElementById('progressFill').style.width = ((i / photoFiles.length) * 80) + '%';
+        document.getElementById('progressText').textContent = `Photo ${i+1}/${photoFiles.length} en cours…`;
+        const fileRef = storageRef(storage, `annonces/${currentUser.uid}/${Date.now()}_${i}`);
+        const snap = await uploadBytes(fileRef, photoFiles[i]);
+        const url = await getDownloadURL(snap.ref);
+        photoURLs.push(url);
+      }
+    }
+
+    document.getElementById('progressFill').style.width = '90%';
+
+    // Récupérer équipements
+    const equips = Array.from(document.querySelectorAll('.equip-chip input:checked')).map(el => el.value);
+
+    // Sauvegarder dans Firestore
+    const annonce = {
+      title: document.getElementById('title').value,
+      type: document.getElementById('type').value,
+      locality: document.getElementById('locality').value,
+      price: parseInt(document.getElementById('price').value),
+      contact: document.getElementById('contact').value,
+      desc: document.getElementById('desc').value,
+      equipements: equips,
+      photos: photoURLs,
+      img: photoURLs[0] || '',
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      top: false,
+      views: 0,
+      createdAt: serverTimestamp(),
+    };
+
+    await addDoc(collection(db, 'annonces'), annonce);
+
+    document.getElementById('progressFill').style.width = '100%';
+    showToast('🎉 Annonce publiée avec succès !', 'success');
+    setTimeout(() => window.location.href = 'profil.html', 1500);
+
+  } catch(err) {
+    console.error(err);
+    document.getElementById('pubError').textContent = 'Erreur lors de la publication. Vérifiez votre connexion.';
+    document.getElementById('pubError').style.display = 'block';
+    btn.textContent = 'Publier l\'annonce'; btn.disabled = false;
+    document.getElementById('uploadProgress').style.display = 'none';
+  }
+});
+
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+</script>
+</body>
+</html>

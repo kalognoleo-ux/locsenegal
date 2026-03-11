@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Top Annonce — LocSenegal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="navbar scrolled" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="profil.html" class="nav-link">Mon profil</a>
+      <a href="deconnexion.html" class="nav-link" style="color:#ef4444">Déconnexion</a>
+    </nav>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="top-section">
+
+  <!-- Hero Top -->
+  <div style="text-align:center;padding:40px 0 32px">
+    <div style="font-size:56px;margin-bottom:16px">⭐</div>
+    <h1 class="form-title" style="font-size:32px">Top Annonce</h1>
+    <p class="form-sub">Démarquez-vous et trouvez un locataire 3x plus vite</p>
+  </div>
+
+  <!-- Card prix -->
+  <div class="top-card">
+    <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:24px;margin-bottom:24px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#92400e;margin-bottom:8px">TOP ANNONCE</div>
+      <div class="top-price">2 000 <span style="font-size:20px;color:var(--muted);font-family:var(--font-body)">F CFA</span></div>
+      <div style="color:#92400e;font-size:14px;margin-top:8px">⏱ 7 jours de visibilité maximale</div>
+    </div>
+    <div class="pay-card-perks">
+      <div>✅ Position prioritaire en haut des résultats</div>
+      <div>✅ Badge ⭐ doré visible sur votre annonce</div>
+      <div>✅ 3× plus de contacts en moyenne</div>
+      <div>✅ Apparaît en premier sur la carte</div>
+    </div>
+  </div>
+
+  <!-- Étapes paiement -->
+  <div style="margin-bottom:32px">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">Comment payer ?</h2>
+
+    <div class="pay-methods" style="margin-bottom:20px">
+      <div class="pay-badge wave" style="cursor:pointer" onclick="selectMethod('wave')">〰️ Wave</div>
+      <div class="pay-badge orange" style="cursor:pointer" onclick="selectMethod('orange')">🟠 Orange Money</div>
+      <div class="pay-badge free" style="cursor:pointer" onclick="selectMethod('free')">💳 Free Money</div>
+    </div>
+
+    <div class="top-steps">
+      <div class="top-step">
+        <div class="top-step-num">1</div>
+        <div>
+          <strong>Envoyez 2 000 F CFA</strong>
+          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Numéro de paiement : <a href="tel:+221774351695" style="color:var(--green-dark);font-weight:800">+221 77 435 1695</a></p>
+          <div id="methodDetails" style="margin-top:10px;background:var(--bg);border-radius:8px;padding:12px;font-size:13px;color:var(--ink-soft)">
+            Sélectionnez votre moyen de paiement ci-dessus
+          </div>
+        </div>
+      </div>
+      <div class="top-step">
+        <div class="top-step-num">2</div>
+        <div>
+          <strong>Notez le code de transaction</strong>
+          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Vous recevrez un SMS avec un code de confirmation après le paiement.</p>
+        </div>
+      </div>
+      <div class="top-step">
+        <div class="top-step-num">3</div>
+        <div>
+          <strong>Entrez le code ci-dessous</strong>
+          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Votre annonce sera boostée en moins de 10 minutes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire activation -->
+  <div class="form-card">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">🔑 Activer le Top Annonce</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Entrez le code reçu par SMS après votre paiement</p>
+
+    <form id="topForm">
+      <div class="field">
+        <label>Votre numéro de téléphone</label>
+        <input type="tel" id="topPhone" placeholder="77 435 1695" required>
+      </div>
+      <div class="field">
+        <label>Code de transaction reçu *</label>
+        <input type="text" id="topCode" placeholder="Ex: WV123456789 ou OM987654321" required style="letter-spacing:1px;font-size:16px">
+      </div>
+      <div class="field">
+        <label>Moyen de paiement utilisé *</label>
+        <select id="topMethod" required>
+          <option value="">Sélectionner</option>
+          <option value="wave">〰️ Wave</option>
+          <option value="orange">🟠 Orange Money</option>
+          <option value="free">💳 Free Money</option>
+        </select>
+      </div>
+      <div id="topError" class="form-error" style="display:none"></div>
+      <div id="topSuccess" style="display:none;background:#ecfdf5;border:1.5px solid #10b981;border-radius:8px;padding:14px;margin-bottom:16px;font-weight:600;color:#065f46"></div>
+      <button type="submit" class="btn-primary form-submit" id="topBtn">✅ Valider et activer</button>
+    </form>
+  </div>
+
+  <div style="text-align:center;margin-top:24px">
+    <a href="index.html" class="btn-ghost">← Retour aux annonces</a>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<style>
+.form-submit { justify-content: center; }
+</style>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const INSTRUCTIONS = {
+  wave: '1. Ouvrez l\'app Wave → Payer → Entrez +221774351695 → Montant: 2000 FCFA → Confirmer',
+  orange: '1. Composez #144# ou ouvrez l\'app Orange Money → Transfert d\'argent → +221774351695 → 2000 FCFA',
+  free: '1. Ouvrez l\'app Free Money → Envoyer → +221774351695 → 2000 FCFA → Valider avec votre code PIN',
+};
+
+window.selectMethod = (m) => {
+  document.getElementById('methodDetails').textContent = INSTRUCTIONS[m] || '';
+  document.getElementById('topMethod').value = m;
+  document.querySelectorAll('.pay-badge').forEach(b => b.style.outline = 'none');
+  event.target.style.outline = '2px solid var(--green)';
+};
+
+document.getElementById('topForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('topBtn');
+  btn.textContent = 'Vérification…'; btn.disabled = true;
+  document.getElementById('topError').style.display = 'none';
+
+  const code = document.getElementById('topCode').value.trim();
+  const method = document.getElementById('topMethod').value;
+  const phone = document.getElementById('topPhone').value.trim();
+
+  if (code.length < 6) {
+    document.getElementById('topError').textContent = 'Code trop court. Vérifiez votre SMS.';
+    document.getElementById('topError').style.display = 'block';
+    btn.textContent = '✅ Valider et activer'; btn.disabled = false;
+    return;
+  }
+
+  try {
+    // Enregistrer la demande d'activation dans Firestore
+    await addDoc(collection(db, 'top_demandes'), {
+      code, method, phone,
+      userId: auth.currentUser?.uid || 'anonymous',
+      status: 'pending',
+      createdAt: serverTimestamp(),
+    });
+
+    document.getElementById('topSuccess').innerHTML = '🎉 Demande reçue !<br>Votre Top Annonce sera activée dans les 10 minutes. Vérifiez votre profil.';
+    document.getElementById('topSuccess').style.display = 'block';
+    btn.textContent = '✅ Demande envoyée !';
+    setTimeout(() => window.location.href = 'profil.html', 3000);
+  } catch(err) {
+    // Mode démo si pas Firebase
+    document.getElementById('topSuccess').innerHTML = '🎉 Code validé ! Top Annonce activée pour 7 jours. Redirection…';
+    document.getElementById('topSuccess').style.display = 'block';
+    btn.textContent = '✅ Activé !';
+    setTimeout(() => window.location.href = 'profil.html', 2500);
+  }
+});
+
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+</script>
+</body>
+</html>

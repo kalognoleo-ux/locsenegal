@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Déconnexion — LocSenegal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)">
+<div style="text-align:center;max-width:360px;padding:40px 20px">
+  <div style="font-size:64px;margin-bottom:24px">👋</div>
+  <h1 style="font-family:var(--font-display);font-size:28px;font-weight:900;margin-bottom:12px">À bientôt !</h1>
+  <p style="color:var(--muted);margin-bottom:32px">Vous avez été déconnecté de LocSenegal.</p>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <a href="connexion.html" class="btn-primary" style="justify-content:center">Se reconnecter</a>
+    <a href="index.html" class="btn-ghost" style="justify-content:center">← Retour à l'accueil</a>
+  </div>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU", authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3", storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451", appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const auth = getAuth(initializeApp(firebaseConfig));
+signOut(auth).catch(() => {});
+</script>
+</body>
+</html>

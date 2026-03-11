@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mon Profil — LocSenegal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="navbar scrolled" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="publication.html" class="nav-btn-pub" id="navPublier" style="display:none">+ Publier</a>
+      <a href="index.html" class="nav-btn-pub" id="navChercher" style="display:none">🔍 Chercher</a>
+      <a href="deconnexion.html" class="nav-link" style="color:#ef4444">Déconnexion</a>
+    </nav>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- Hero profil -->
+<div class="profil-hero">
+  <div class="container">
+    <div class="profil-avatar" id="profilAvatar">?</div>
+    <div class="profil-name" id="profilName">Chargement…</div>
+    <div class="profil-meta" id="profilMeta">—</div>
+    <div id="profilRoleBadge" style="margin-top:8px;display:none"></div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:80px">
+  <!-- Stats -->
+  <div class="profil-stats">
+    <div class="profil-stat">
+      <div class="profil-stat-num" id="statAnnonces">0</div>
+      <div class="profil-stat-label">Annonces</div>
+    </div>
+    <div class="profil-stat">
+      <div class="profil-stat-num" id="statVues">0</div>
+      <div class="profil-stat-label">Vues totales</div>
+    </div>
+    <div class="profil-stat">
+      <div class="profil-stat-num" id="statTop">0</div>
+      <div class="profil-stat-label">Top Annonces</div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="tabs">
+    <button class="tab active" data-tab="annonces">Mes annonces</button>
+    <button class="tab" data-tab="favoris">❤️ Favoris</button>
+    <button class="tab" data-tab="compte">Mon compte</button>
+  </div>
+
+  <!-- Mes annonces -->
+  <div id="tab-annonces" class="tab-content">
+    <div class="tab-actions">
+      <h2 style="font-size:20px;font-weight:700" id="annoncesTitre">Mes annonces publiées</h2>
+      <a href="publication.html" class="btn-primary sm" id="btnNouvelleAnnonce">+ Nouvelle annonce</a>
+    </div>
+    <div id="mesAnnonces" class="grid">
+      <div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--muted)">
+        <div class="loader-ring" style="margin:0 auto 12px"></div>Chargement…
+      </div>
+    </div>
+  </div>
+
+  <!-- Favoris -->
+  <div id="tab-favoris" class="tab-content" style="display:none">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">Mes annonces sauvegardées</h2>
+    <div id="mesFavoris" class="grid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
+        <div style="font-size:48px;margin-bottom:12px">❤️</div>
+        <p>Aucun favori pour l'instant.<br>Cliquez sur ♡ sur les annonces pour les sauvegarder.</p>
+        <a href="index.html" class="btn-primary sm" style="margin-top:16px;display:inline-flex">Parcourir les annonces</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compte -->
+  <div id="tab-compte" class="tab-content" style="display:none">
+    <div class="profil-card">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:24px">Informations du compte</h2>
+      <div class="profil-info-grid">
+        <div class="profil-info-item"><span class="profil-info-label">Nom</span><span id="infoNom">—</span></div>
+        <div class="profil-info-item"><span class="profil-info-label">Email</span><span id="infoEmail">—</span></div>
+        <div class="profil-info-item"><span class="profil-info-label">Téléphone</span><span id="infoPhone">—</span></div>
+        <div class="profil-info-item"><span class="profil-info-label">Rôle</span><span id="infoRole">—</span></div>
+        <div class="profil-info-item"><span class="profil-info-label">Membre depuis</span><span id="infoDate">—</span></div>
+      </div>
+      <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+        <a href="deconnexion.html" class="btn-ghost" style="color:#ef4444;border-color:#fecaca">🚪 Se déconnecter</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<style>
+.profil-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:-20px 0 32px; background:var(--white); border-radius:16px; padding:24px; box-shadow:var(--shadow); border:1px solid var(--border); }
+.profil-stat { text-align:center; }
+.profil-stat-num { font-family:var(--font-display); font-size:32px; font-weight:900; color:var(--green-dark); }
+.profil-stat-label { font-size:12px; color:var(--muted); font-weight:600; margin-top:4px; }
+.tabs { display:flex; gap:4px; margin-bottom:24px; border-bottom:2px solid var(--border); padding-bottom:0; }
+.tab { padding:12px 20px; border-radius:10px 10px 0 0; font-size:14px; font-weight:700; background:none; color:var(--muted); border:none; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; cursor:pointer; }
+.tab.active { color:var(--green-dark); border-bottom-color:var(--green); background:var(--green-pale); }
+.tab-actions { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.profil-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.profil-info-item { background:var(--bg); border-radius:10px; padding:14px; }
+.profil-info-label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:4px; }
+.profil-info-item span:last-child { font-size:15px; font-weight:600; color:var(--ink); }
+.card-delete-btn { display:block; width:100%; margin-top:8px; padding:6px; border-radius:6px; background:#fde8e8; color:#b91c1c; border:none; font-size:12px; font-weight:700; cursor:pointer; transition:background .15s; font-family:var(--font-body); }
+.card-delete-btn:hover { background:#fecaca; }
+@media(max-width:640px) { .profil-info-grid { grid-template-columns:1fr; } }
+</style>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, deleteDoc }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const showToast = (msg, type='info') => {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`; t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'connexion.html'; return; }
+
+  // Infos utilisateur
+  const nom = user.displayName || user.email?.split('@')[0] || 'Utilisateur';
+  document.getElementById('profilAvatar').textContent = nom[0].toUpperCase();
+  document.getElementById('profilName').textContent = nom;
+  document.getElementById('profilMeta').textContent = user.email;
+  document.getElementById('infoNom').textContent = nom;
+  document.getElementById('infoEmail').textContent = user.email;
+  document.getElementById('infoDate').textContent = user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('fr-FR') : '—';
+
+  // Charger données Firestore
+  try {
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      document.getElementById('infoPhone').textContent = data.phone || '—';
+      const role = data.role || 'locataire';
+      document.getElementById('infoRole').textContent = role === 'proprietaire' ? '🏠 Propriétaire' : '🔍 Locataire';
+
+      // Adapter l'interface selon le rôle
+      const badge = document.getElementById('profilRoleBadge');
+      if (role === 'proprietaire') {
+        document.getElementById('navPublier').style.display = '';
+        document.getElementById('annoncesTitre').textContent = 'Mes annonces publiées';
+        document.getElementById('btnNouvelleAnnonce').style.display = '';
+        badge.innerHTML = '<span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700">🏠 Propriétaire</span>';
+      } else {
+        document.getElementById('navChercher').style.display = '';
+        document.getElementById('annoncesTitre').textContent = 'Logements sauvegardés';
+        document.getElementById('btnNouvelleAnnonce').style.display = 'none';
+        badge.innerHTML = '<span style="background:#e0f2fe;color:#0369a1;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700">🔍 Locataire</span>';
+      }
+      badge.style.display = 'block';
+    }
+  } catch(e) {}
+
+  // Charger annonces
+  try {
+    const q = query(collection(db, 'annonces'), where('userId', '==', user.uid));
+    const snap = await getDocs(q);
+    const annonces = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    afficherAnnonces(annonces, user.uid);
+  } catch(e) {
+    // Démo
+    afficherAnnonces([
+      { id:'demo1', type:'Chambre', title:'Chambre à Pikine', locality:'Pikine', price:20000, contact:'77 000 0000', img:'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=70', top:false, views:34 },
+      { id:'demo2', type:'Appartement', title:'Appartement à Yoff', locality:'Yoff', price:55000, contact:'77 000 0000', img:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70', top:true, views:127 },
+    ], user.uid);
+  }
+});
+
+function afficherAnnonces(annonces, uid) {
+  const grid = document.getElementById('mesAnnonces');
+  document.getElementById('statAnnonces').textContent = annonces.length;
+  const totalVues = annonces.reduce((s,a) => s + (a.views||0), 0);
+  const totalTop = annonces.filter(a => a.top).length;
+  document.getElementById('statVues').textContent = totalVues;
+  document.getElementById('statTop').textContent = totalTop;
+
+  if (annonces.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px">📝</div>
+      <p>Aucune annonce publiée.</p>
+      <a href="publication.html" class="btn-primary sm" style="margin-top:16px;display:inline-flex">Publier ma première annonce</a>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  annonces.forEach(item => {
+    const card = document.createElement('article');
+    card.className = 'card' + (item.top ? ' card-top' : '');
+    const img = item.img || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70';
+    card.innerHTML = `
+      <div class="card-img-wrap">
+        <img class="card-img" src="${img}" alt="${item.title}" loading="lazy">
+        ${item.top ? '<div class="card-top-badge">⭐ Top</div>' : ''}
+        <div class="card-type-badge">${item.type}</div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">${item.title}</h3>
+        <div class="card-meta"><span>📍 ${item.locality}</span><span>👁 ${item.views||0} vues</span></div>
+        <div class="card-price">${Number(item.price).toLocaleString('fr-FR')} F/mois</div>
+        <div class="card-actions">
+          ${!item.top ? `<a href="top.html" class="btn-ghost sm" style="font-size:12px">⭐ Booster</a>` : ''}
+          <button class="card-delete-btn" onclick="supprimerAnnonce('${item.id}')">🗑️ Supprimer</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+window.supprimerAnnonce = async (id) => {
+  if (!confirm('Supprimer cette annonce définitivement ?')) return;
+  try {
+    await deleteDoc(doc(db, 'annonces', id));
+    showToast('🗑️ Annonce supprimée', 'success');
+    setTimeout(() => window.location.reload(), 1000);
+  } catch(e) {
+    showToast('Erreur lors de la suppression', 'error');
+  }
+};
+
+// Onglets
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    tab.classList.add('active');
+    document.getElementById(`tab-${tab.dataset.tab}`).style.display = 'block';
+  });
+});
+
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+</script>
+</body>
+</html>

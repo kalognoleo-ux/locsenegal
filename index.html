@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LocSenegal — Trouvez votre logement</title>
+  <meta name="description" content="Plateforme de location immobilière au Sénégal. Chambres, appartements, studios à Dakar et partout au Sénégal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════ -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">🏠</span>
+      <span class="logo-text">Loc<strong>Senegal</strong></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link active">Accueil</a>
+      <a href="carte.html" class="nav-link">🗺️ Carte</a>
+      <a href="top.html" class="nav-link">⭐ Top</a>
+      <a href="publication.html" class="nav-btn-pub">+ Publier</a>
+      <a href="connexion.html" class="nav-link" id="navAuth">Connexion</a>
+      <a href="profil.html" class="nav-avatar" id="navProfil" style="display:none">
+        <span id="navInitials">A</span>
+      </a>
+    </nav>
+    <button class="nav-burger" id="navBurger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ══ HERO ════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🇸🇳 Sénégal · Dakar · Toutes les régions</div>
+    <h1 class="hero-title">
+      Votre prochain<br>
+      <em>logement</em> vous attend
+    </h1>
+    <p class="hero-sub">Chambres, studios, appartements — trouvez en quelques secondes parmi des centaines d'annonces vérifiées.</p>
+
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="heroSearch" placeholder="Quartier, ville... ex: Pikine, Yoff, Thiès" autocomplete="off">
+      </div>
+      <select id="searchType" class="search-select">
+        <option value="">Tout type</option>
+        <option>Chambre</option>
+        <option>Studio</option>
+        <option>Appartement</option>
+        <option>Villa</option>
+      </select>
+      <button class="search-btn" id="searchBtn">Rechercher</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" id="statTotal">—</span><span class="stat-label">Annonces actives</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num">14</span><span class="stat-label">Régions couvertes</span></div>
+      <div class="stat-sep"></div>
+      <div class="stat"><span class="stat-num">⭐ 4.8</span><span class="stat-label">Note moyenne</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card-float">
+      <div class="float-img" style="background:linear-gradient(135deg,#10b981,#065f46)">🏢</div>
+      <div class="float-info">
+        <div class="float-title">Appartement Plateau</div>
+        <div class="float-price">65 000 F/mois</div>
+        <div class="float-badge">⭐ Top Annonce</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FILTRES ══════════════════════════════ -->
+<div class="filters-bar container">
+  <button class="filter-chip active" data-type="">Tous</button>
+  <button class="filter-chip" data-type="Chambre">🛏️ Chambres</button>
+  <button class="filter-chip" data-type="Studio">🏠 Studios</button>
+  <button class="filter-chip" data-type="Appartement">🏢 Appartements</button>
+  <button class="filter-chip" data-type="Villa">🏡 Villas</button>
+  <button class="filter-chip" data-type="top">⭐ Top Annonces</button>
+  <div class="filter-price">
+    <label>Max:</label>
+    <select id="filterPrice">
+      <option value="">Tous prix</option>
+      <option value="30000">≤ 30 000 F</option>
+      <option value="50000">≤ 50 000 F</option>
+      <option value="100000">≤ 100 000 F</option>
+      <option value="200000">≤ 200 000 F</option>
+    </select>
+  </div>
+</div>
+
+<!-- ══ ANNONCES ═════════════════════════════ -->
+<main class="container" id="main">
+  <div class="section-head">
+    <h2 class="section-title">Dernières annonces</h2>
+    <div class="view-toggle">
+      <button class="view-btn active" id="viewGrid" title="Grille">⊞</button>
+      <button class="view-btn" id="viewList" title="Liste">≡</button>
+    </div>
+  </div>
+
+  <div id="loadingState" class="loading-state">
+    <div class="loader-ring"></div>
+    <p>Chargement des annonces…</p>
+  </div>
+
+  <div id="listGrid" class="grid"></div>
+
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="empty-icon">🔍</div>
+    <h3>Aucune annonce trouvée</h3>
+    <p>Essayez avec d'autres mots-clés ou un autre quartier.</p>
+    <button class="btn-primary" onclick="resetFilters()">Voir toutes les annonces</button>
+  </div>
+
+  <button class="load-more" id="loadMore" style="display:none" onclick="loadMore()">
+    Voir plus d'annonces <span>↓</span>
+  </button>
+</main>
+
+<!-- ══ COMMENT ÇA MARCHE ════════════════════ -->
+<section class="how-section">
+  <div class="container">
+    <h2 class="section-title center">Comment ça marche</h2>
+    <p class="section-sub center">Simple, rapide et sécurisé</p>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <div class="how-icon">📝</div>
+        <h3>Créez votre compte</h3>
+        <p>Inscription gratuite en moins de 2 minutes avec votre numéro de téléphone.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <div class="how-icon">📸</div>
+        <h3>Publiez votre annonce</h3>
+        <p>Ajoutez photos, prix et localisation. Votre annonce est en ligne immédiatement.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <div class="how-icon">💬</div>
+        <h3>Échangez & concluez</h3>
+        <p>Contactez directement le propriétaire par téléphone ou messagerie intégrée.</p>
+      </div>
+      <div class="how-card how-card-accent">
+        <div class="how-num">04</div>
+        <div class="how-icon">⭐</div>
+        <h3>Top Annonce</h3>
+        <p>Boostez votre visibilité pour seulement <strong>2 000 F CFA</strong> par semaine via Wave ou Orange Money.</p>
+        <a href="top.html" class="btn-primary sm">En savoir plus →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PAIEMENT MOBILE ════════════════════ -->
+<section class="pay-section">
+  <div class="container">
+    <div class="pay-inner">
+      <div class="pay-text">
+        <h2>Paiement 100% mobile 🇸🇳</h2>
+        <p>Activez votre Top Annonce instantanément avec les moyens de paiement sénégalais les plus populaires.</p>
+        <div class="pay-methods">
+          <div class="pay-badge wave">〰️ Wave</div>
+          <div class="pay-badge orange">🟠 Orange Money</div>
+          <div class="pay-badge free">💳 Free Money</div>
+        </div>
+        <div class="pay-contact">
+          <span>📞 Paiement : </span>
+          <a href="tel:+221774351695"><strong>+221 77 435 1695</strong></a>
+        </div>
+      </div>
+      <div class="pay-visual">
+        <div class="pay-card">
+          <div class="pay-card-top">Top Annonce</div>
+          <div class="pay-card-price">2 000 <span>F CFA</span></div>
+          <div class="pay-card-dur">⏱ 7 jours de visibilité maximale</div>
+          <div class="pay-card-perks">
+            <div>✅ Position prioritaire</div>
+            <div>✅ Badge ⭐ Top visible</div>
+            <div>✅ 3x plus de contacts</div>
+          </div>
+          <a href="top.html" class="btn-primary">Activer maintenant</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">🏠 LocSenegal</div>
+        <p>La plateforme de référence pour la location immobilière au Sénégal.</p>
+        <div class="footer-social">
+          <a href="#">Facebook</a>
+          <a href="#">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Navigation</h4>
+        <a href="index.html">Accueil</a>
+        <a href="carte.html">Carte</a>
+        <a href="top.html">Top Annonce</a>
+        <a href="publication.html">Publier</a>
+      </div>
+      <div class="footer-links">
+        <h4>Compte</h4>
+        <a href="connexion.html">Connexion</a>
+        <a href="inscription.html">Inscription</a>
+        <a href="profil.html">Mon profil</a>
+      </div>
+      <div class="footer-links">
+        <h4>Contact</h4>
+        <a href="tel:+221774351695">+221 77 435 1695</a>
+        <p style="font-size:13px;margin-top:8px;color:#9ca3af">Wave · Orange Money · Free Money</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 LocSenegal 🇸🇳 — Tous droits réservés</span>
+      <span>Fait avec ❤️ au Sénégal</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ MODAL DÉTAIL ANNONCE ═════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- ══ TOAST ════════════════════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+// ══════════════════════════════════════════
+// FIREBASE CONFIG
+// ══════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, query, orderBy, limit, where, startAfter, doc, getDoc, updateDoc, increment }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getStorage, ref, getDownloadURL }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+// 🔥 REMPLACEZ par votre config Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// ══════════════════════════════════════════
+// ÉTAT GLOBAL
+// ══════════════════════════════════════════
+let allListings = [];
+let filteredListings = [];
+let lastDoc = null;
+let activeType = '';
+let activeMaxPrice = '';
+let activeSearch = '';
+const PAGE_SIZE = 9;
+let currentPage = 0;
+let isListView = false;
+
+// ══════════════════════════════════════════
+// AUTH — afficher/masquer nav selon connexion
+// ══════════════════════════════════════════
+onAuthStateChanged(auth, (user) => {
+  const navAuth  = document.getElementById('navAuth');
+  const navProfil = document.getElementById('navProfil');
+  const navInitials = document.getElementById('navInitials');
+  if (user) {
+    navAuth.style.display = 'none';
+    navProfil.style.display = 'flex';
+    navInitials.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
+  } else {
+    navAuth.style.display = 'inline-flex';
+    navProfil.style.display = 'none';
+  }
+});
+
+// ══════════════════════════════════════════
+// CHARGER ANNONCES FIREBASE
+// ══════════════════════════════════════════
+async function loadListings() {
+  document.getElementById('loadingState').style.display = 'flex';
+  document.getElementById('listGrid').innerHTML = '';
+  try {
+    const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'), limit(50));
+    const snap = await getDocs(q);
+    allListings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('statTotal').textContent = allListings.length + '+';
+    applyFilters();
+  } catch(e) {
+    console.warn('Firebase non configuré, données démo chargées');
+    loadDemoData();
+  }
+  document.getElementById('loadingState').style.display = 'none';
+}
+
+function loadDemoData() {
+  allListings = [
+    { id:'1', type:'Chambre', title:'Chambre meublée calme à Guédiawaye', locality:'Guédiawaye', price:20000, contact:'77 123 4567', img:'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80', top:false, desc:'Belle chambre meublée proche des transports, eau et électricité inclus.', views:142 },
+    { id:'2', type:'Appartement', title:'Appartement 2 pièces lumineux à Pikine', locality:'Pikine', price:45000, contact:'77 234 5678', img:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80', top:true, desc:'Appartement moderne avec salon, chambre, cuisine équipée et salle de bain.', views:287 },
+    { id:'3', type:'Studio', title:'Studio moderne tout équipé Grand Yoff', locality:'Grand Yoff', price:30000, contact:'77 345 6789', img:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80', top:false, desc:'Studio neuf, gardiennage 24h, parking disponible.', views:98 },
+    { id:'4', type:'Appartement', title:'Bel appartement meublé Sacré-Cœur', locality:'Sacré-Cœur', price:60000, contact:'77 456 7890', img:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80', top:true, desc:'Appartement haut standing avec balcon et vue dégagée.', views:445 },
+    { id:'5', type:'Chambre', title:'Chambre simple à Parcelles Assainies', locality:'Parcelles Assainies', price:18000, contact:'77 567 8901', img:'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80', top:false, desc:'Chambre propre avec accès cuisine partagée.', views:67 },
+    { id:'6', type:'Villa', title:'Villa 4 pièces avec jardin à Yoff', locality:'Yoff', price:150000, contact:'77 678 9012', img:'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=600&q=80', top:true, desc:'Grande villa avec jardin, 3 chambres, garage double.', views:312 },
+    { id:'7', type:'Studio', title:'Studio neuf résidence sécurisée Liberté 6', locality:'Liberté 6', price:35000, contact:'77 789 0123', img:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80', top:false, desc:'Studio dans résidence avec gardien, eau chaude.', views:189 },
+    { id:'8', type:'Appartement', title:'F3 spacieux à Mermoz', locality:'Mermoz', price:85000, contact:'77 890 1234', img:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80', top:false, desc:'Grand appartement, salon double, 2 chambres, cuisine américaine.', views:203 },
+    { id:'9', type:'Chambre', title:'Chambre chez habitant Thiès', locality:'Thiès', price:15000, contact:'77 901 2345', img:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80', top:false, desc:'Chambre confortable, ambiance familiale, repas possible.', views:55 },
+  ];
+  document.getElementById('statTotal').textContent = allListings.length + '+';
+  applyFilters();
+}
+
+// ══════════════════════════════════════════
+// FILTRES
+// ══════════════════════════════════════════
+function applyFilters() {
+  let result = [...allListings];
+  if (activeType === 'top') {
+    result = result.filter(l => l.top);
+  } else if (activeType) {
+    result = result.filter(l => l.type === activeType);
+  }
+  if (activeMaxPrice) {
+    result = result.filter(l => l.price <= parseInt(activeMaxPrice));
+  }
+  if (activeSearch) {
+    const q = activeSearch.toLowerCase();
+    result = result.filter(l =>
+      l.title?.toLowerCase().includes(q) ||
+      l.locality?.toLowerCase().includes(q) ||
+      l.type?.toLowerCase().includes(q)
+    );
+  }
+  filteredListings = result;
+  currentPage = 0;
+  renderPage();
+}
+
+function renderPage() {
+  const grid = document.getElementById('listGrid');
+  const empty = document.getElementById('emptyState');
+  const more = document.getElementById('loadMore');
+
+  if (filteredListings.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'flex';
+    more.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  const items = filteredListings.slice(0, (currentPage + 1) * PAGE_SIZE);
+  grid.innerHTML = '';
+  grid.className = isListView ? 'list-view' : 'grid';
+  items.forEach(item => grid.appendChild(createCard(item)));
+  more.style.display = filteredListings.length > items.length ? 'flex' : 'none';
+}
+
+window.loadMore = function() {
+  currentPage++;
+  renderPage();
+};
+
+window.resetFilters = function() {
+  activeType = '';
+  activeSearch = '';
+  activeMaxPrice = '';
+  document.getElementById('heroSearch').value = '';
+  document.getElementById('filterPrice').value = '';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.filter-chip[data-type=""]').classList.add('active');
+  applyFilters();
+};
+
+// ══════════════════════════════════════════
+// CARTES ANNONCES
+// ══════════════════════════════════════════
+function formatPrice(p) {
+  return Number(p).toLocaleString('fr-FR') + ' F/mois';
+}
+
+function createCard(item) {
+  const card = document.createElement('article');
+  card.className = 'card' + (item.top ? ' card-top' : '');
+  const img = item.img || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80';
+  card.innerHTML = `
+    <div class="card-img-wrap">
+      <img class="card-img" src="${img}" alt="${item.title}" loading="lazy" decoding="async">
+      ${item.top ? '<div class="card-top-badge">⭐ Top</div>' : ''}
+      <div class="card-type-badge">${item.type}</div>
+      <button class="card-fav" title="Sauvegarder" onclick="toggleFav(event,'${item.id}')">♡</button>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">${item.title}</h3>
+      <div class="card-meta">
+        <span>📍 ${item.locality}</span>
+        ${item.views ? `<span>👁 ${item.views}</span>` : ''}
+      </div>
+      <div class="card-price">${formatPrice(item.price)}</div>
+      <div class="card-actions">
+        <a href="tel:${item.contact}" class="btn-primary sm">📞 Appeler</a>
+        <button class="btn-ghost sm" onclick="openModal('${item.id}')">Voir détails</button>
+        <a href="https://wa.me/221${item.contact?.replace(/\s/g,'')}" target="_blank" class="btn-wa sm" title="WhatsApp">💬</a>
+      </div>
+    </div>`;
+  return card;
+}
+
+// ══════════════════════════════════════════
+// MODAL DÉTAIL
+// ══════════════════════════════════════════
+window.openModal = function(id) {
+  const item = allListings.find(l => l.id === id);
+  if (!item) return;
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <img src="${item.img}" alt="${item.title}" class="modal-img" loading="lazy">
+    <div class="modal-body">
+      <div class="modal-tags">
+        <span class="modal-tag">${item.type}</span>
+        ${item.top ? '<span class="modal-tag top">⭐ Top Annonce</span>' : ''}
+      </div>
+      <h2 class="modal-title">${item.title}</h2>
+      <div class="modal-loc">📍 ${item.locality}</div>
+      <div class="modal-price">${formatPrice(item.price)}</div>
+      <p class="modal-desc">${item.desc || 'Contactez le propriétaire pour plus d\'informations.'}</p>
+      <div class="modal-actions">
+        <a href="tel:${item.contact}" class="btn-primary">📞 Appeler ${item.contact}</a>
+        <a href="https://wa.me/221${item.contact?.replace(/\s/g,'')}" target="_blank" class="btn-wa">💬 WhatsApp</a>
+      </div>
+      <div class="modal-share">
+        <span>Partager :</span>
+        <button onclick="shareAnnonce('${item.title}')">🔗 Copier le lien</button>
+      </div>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeModal = function() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.shareAnnonce = function(title) {
+  navigator.clipboard?.writeText(window.location.href).then(() => showToast('🔗 Lien copié !', 'success'));
+};
+
+// ══════════════════════════════════════════
+// FAVORIS (localStorage)
+// ══════════════════════════════════════════
+window.toggleFav = function(e, id) {
+  e.stopPropagation();
+  const favs = JSON.parse(localStorage.getItem('ls_favs') || '[]');
+  const btn = e.currentTarget;
+  if (favs.includes(id)) {
+    localStorage.setItem('ls_favs', JSON.stringify(favs.filter(f => f !== id)));
+    btn.textContent = '♡';
+    btn.classList.remove('fav-active');
+  } else {
+    favs.push(id);
+    localStorage.setItem('ls_favs', JSON.stringify(favs));
+    btn.textContent = '♥';
+    btn.classList.add('fav-active');
+    showToast('❤️ Ajouté aux favoris', 'success');
+  }
+};
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+window.showToast = function(msg, type='info') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+};
+
+// ══════════════════════════════════════════
+// EVENTS
+// ══════════════════════════════════════════
+document.getElementById('searchBtn').addEventListener('click', () => {
+  activeSearch = document.getElementById('heroSearch').value.trim();
+  const type = document.getElementById('searchType').value;
+  if (type) activeType = type;
+  applyFilters();
+  document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
+});
+
+document.getElementById('heroSearch').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('searchBtn').click();
+});
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeType = chip.dataset.type;
+    applyFilters();
+  });
+});
+
+document.getElementById('filterPrice').addEventListener('change', e => {
+  activeMaxPrice = e.target.value;
+  applyFilters();
+});
+
+document.getElementById('viewGrid').addEventListener('click', () => {
+  isListView = false;
+  document.getElementById('viewGrid').classList.add('active');
+  document.getElementById('viewList').classList.remove('active');
+  renderPage();
+});
+
+document.getElementById('viewList').addEventListener('click', () => {
+  isListView = true;
+  document.getElementById('viewList').classList.add('active');
+  document.getElementById('viewGrid').classList.remove('active');
+  renderPage();
+});
+
+// Navbar scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Burger menu mobile
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+
+// Restaurer favoris
+function restoreFavs() {
+  const favs = JSON.parse(localStorage.getItem('ls_favs') || '[]');
+  favs.forEach(id => {
+    const btn = document.querySelector(`.card-fav[onclick*="'${id}'"]`);
+    if (btn) { btn.textContent = '♥'; btn.classList.add('fav-active'); }
+  });
+}
+
+// ══ INIT ══
+loadListings();
+</script>
+</body>
+</html>

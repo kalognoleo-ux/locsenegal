@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inscription — LocSenegal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="connexion.html" class="nav-link">Connexion</a>
+    </nav>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="form-page">
+  <div class="form-card">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:48px;margin-bottom:12px">🏠</div>
+      <h1 class="form-title">Créer un compte</h1>
+      <p class="form-sub">Gratuit · Rapide · Sécurisé</p>
+    </div>
+
+    <button class="google-btn" id="googleBtn">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+      S'inscrire avec Google
+    </button>
+
+    <div class="divider"><span>ou</span></div>
+
+    <!-- Choix rôle -->
+    <div class="role-choice">
+      <label class="role-option" id="roleLocataire">
+        <input type="radio" name="role" value="locataire" checked>
+        <div class="role-card">
+          <span class="role-icon">🔍</span>
+          <span class="role-label">Je cherche</span>
+          <span class="role-sub">Locataire</span>
+        </div>
+      </label>
+      <label class="role-option" id="roleProprietaire">
+        <input type="radio" name="role" value="proprietaire">
+        <div class="role-card">
+          <span class="role-icon">🏠</span>
+          <span class="role-label">Je loue</span>
+          <span class="role-sub">Propriétaire</span>
+        </div>
+      </label>
+    </div>
+
+    <form id="inscriptionForm">
+      <div class="field">
+        <label>Nom complet *</label>
+        <input type="text" id="nom" placeholder="Ex: Mariama Ndiaye" required>
+      </div>
+      <div class="field">
+        <label>Téléphone * <span class="field-hint">(WhatsApp de préférence)</span></label>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <select id="dialCode" style="border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:var(--font-body);font-size:14px;background:#fff;flex-shrink:0">
+            <option value="+221">🇸🇳 +221</option>
+            <option value="+225">🇨🇮 +225</option>
+            <option value="+223">🇲🇱 +223</option>
+            <option value="+224">🇬🇳 +224</option>
+            <option value="+222">🇲🇷 +222</option>
+          </select>
+          <input type="tel" id="phone" placeholder="77 123 4567" required style="flex:1">
+        </div>
+      </div>
+      <div class="field">
+        <label>Adresse email *</label>
+        <input type="email" id="email" placeholder="email@exemple.com" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Mot de passe *</label>
+        <div class="input-eye">
+          <input type="password" id="password" placeholder="Minimum 6 caractères" required autocomplete="new-password">
+          <button type="button" class="eye-btn" id="eyeBtn">👁</button>
+        </div>
+        <div class="pwd-strength" id="pwdStrength"></div>
+      </div>
+      <div id="inscError" class="form-error" style="display:none"></div>
+      <button type="submit" class="btn-primary form-submit" id="submitBtn">Créer mon compte</button>
+    </form>
+
+    <p class="form-link">Déjà un compte ? <a href="connexion.html">Se connecter</a></p>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px">En vous inscrivant vous acceptez nos <a href="#" style="color:var(--green-dark)">conditions d'utilisation</a></p>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<style>
+.google-btn { width:100%;padding:12px 20px;border-radius:10px;background:#fff;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:600;font-family:var(--font-body);color:var(--ink);cursor:pointer;transition:background .15s,border-color .15s; }
+.google-btn:hover{background:var(--bg);border-color:#aaa;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.divider span{font-size:13px;color:var(--muted);font-weight:600;}
+.role-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
+.role-option{cursor:pointer;}
+.role-option input{display:none;}
+.role-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);transition:all .15s;}
+.role-option input:checked + .role-card{border-color:var(--green);background:var(--green-pale);}
+.role-icon{font-size:28px;}
+.role-label{font-weight:700;font-size:14px;color:var(--ink);}
+.role-sub{font-size:12px;color:var(--muted);}
+.input-eye{position:relative;}
+.input-eye input{width:100%;padding-right:44px;}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer;}
+.pwd-strength{height:4px;border-radius:2px;margin-top:6px;background:var(--border);transition:all .3s;}
+.form-error{background:#fde8e8;color:#b91c1c;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px;}
+.form-submit{justify-content:center;}
+</style>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const showToast = (msg, type='info') => {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`; t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+};
+
+const showError = (msg) => {
+  const el = document.getElementById('inscError');
+  el.textContent = msg; el.style.display = 'block';
+};
+
+// Force mot de passe
+document.getElementById('password').addEventListener('input', function() {
+  const bar = document.getElementById('pwdStrength');
+  const v = this.value;
+  let score = 0;
+  if (v.length >= 6) score++;
+  if (v.length >= 10) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/[0-9]/.test(v)) score++;
+  const colors = ['', '#ef4444', '#f59e0b', '#10b981', '#047857'];
+  bar.style.background = colors[score] || 'var(--border)';
+  bar.style.width = (score * 25) + '%';
+});
+
+// Inscription Google
+document.getElementById('googleBtn').addEventListener('click', async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const role = document.querySelector('input[name="role"]:checked').value;
+    await setDoc(doc(db, 'users', result.user.uid), {
+      nom: result.user.displayName,
+      email: result.user.email,
+      role, createdAt: serverTimestamp()
+    }, { merge: true });
+    showToast('✅ Compte créé avec Google !', 'success');
+    setTimeout(() => window.location.href = 'profil.html', 1000);
+  } catch(e) { showError('Erreur Google. Réessayez.'); }
+});
+
+// Inscription email
+document.getElementById('inscriptionForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Création…'; btn.disabled = true;
+  document.getElementById('inscError').style.display = 'none';
+
+  const nom = document.getElementById('nom').value.trim();
+  const dial = document.getElementById('dialCode').value;
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const role = document.querySelector('input[name="role"]:checked').value;
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: nom });
+
+    // Sauvegarde Firestore séparée pour ne pas bloquer l'inscription
+    try {
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        nom, email, phone: dial + phone.replace(/\s/g,''),
+        role, createdAt: serverTimestamp(), annonces: []
+      }, { merge: true });
+    } catch(firestoreErr) {
+      console.warn('Firestore non enregistré :', firestoreErr.message);
+      // L'inscription Auth est valide, on continue quand même
+    }
+
+    showToast('🎉 Compte créé avec succès !', 'success');
+    setTimeout(() => window.location.href = 'profil.html', 1200);
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Cet email est déjà utilisé. Connectez-vous.',
+      'auth/weak-password': 'Mot de passe trop faible (6 caractères minimum).',
+      'auth/invalid-email': 'Email invalide.',
+    };
+    showError(msgs[e.code] || 'Erreur lors de l\'inscription.');
+    btn.textContent = 'Créer mon compte'; btn.disabled = false;
+  }
+});
+
+document.getElementById('eyeBtn').addEventListener('click', () => {
+  const i = document.getElementById('password');
+  i.type = i.type === 'password' ? 'text' : 'password';
+});
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+</script>
+</body>
+</html>
