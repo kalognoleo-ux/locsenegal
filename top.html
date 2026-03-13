@@ -156,7 +156,7 @@ window.selectMethod = (m) => {
 document.getElementById('topForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('topBtn');
-  btn.textContent = 'Vérification…'; btn.disabled = true;
+  btn.textContent = 'Envoi à la vérification…'; btn.disabled = true;
   document.getElementById('topError').style.display = 'none';
 
   const code = document.getElementById('topCode').value.trim();
@@ -171,24 +171,40 @@ document.getElementById('topForm').addEventListener('submit', async (e) => {
   }
 
   try {
-    // Enregistrer la demande d'activation dans Firestore
-    await addDoc(collection(db, 'top_demandes'), {
-      code, method, phone,
-      userId: auth.currentUser?.uid || 'anonymous',
-      status: 'pending',
-      createdAt: serverTimestamp(),
+    // Appel à la fonction Netlify pour valider le paiement
+    const response = await fetch('/.netlify/functions/validate-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code, method, phone,
+        userId: auth.currentUser?.uid || null,
+      }),
     });
 
-    document.getElementById('topSuccess').innerHTML = '🎉 Demande reçue !<br>Votre Top Annonce sera activée dans les 10 minutes. Vérifiez votre profil.';
+    const result = await response.json();
+
+    if (!response.ok) {
+      document.getElementById('topError').textContent = result.error || 'Erreur lors de la validation.';
+      document.getElementById('topError').style.display = 'block';
+      btn.textContent = '✅ Valider et activer'; btn.disabled = false;
+      return;
+    }
+
+    document.getElementById('topSuccess').innerHTML = `
+      🎉 Demande reçue avec succès !<br>
+      <small style="color: var(--muted); margin-top: 8px; display: block;">
+        ID de demande: <code style="background: var(--bg); padding: 2px 6px; border-radius: 4px;">${result.requestId}</code><br>
+        Votre Top Annonce sera activée après vérification. Vous recevrez une confirmation par SMS.
+      </small>
+    `;
     document.getElementById('topSuccess').style.display = 'block';
     btn.textContent = '✅ Demande envoyée !';
-    setTimeout(() => window.location.href = 'profil.html', 3000);
+    setTimeout(() => window.location.href = 'profil.html', 4000);
   } catch(err) {
-    // Mode démo si pas Firebase
-    document.getElementById('topSuccess').innerHTML = '🎉 Code validé ! Top Annonce activée pour 7 jours. Redirection…';
-    document.getElementById('topSuccess').style.display = 'block';
-    btn.textContent = '✅ Activé !';
-    setTimeout(() => window.location.href = 'profil.html', 2500);
+    console.error('Erreur:', err);
+    document.getElementById('topError').textContent = 'Erreur réseau. Réessayez.';
+    document.getElementById('topError').style.display = 'block';
+    btn.textContent = '✅ Valider et activer'; btn.disabled = false;
   }
 });
 

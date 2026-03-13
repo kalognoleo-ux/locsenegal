@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Paramètres d'administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    .admin-header { text-align: center; margin-bottom: 40px; }
+    .payment-list { background: var(--white); border-radius: 12px; box-shadow: var(--shadow-md); }
+    .payment-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 150px 150px 150px;
+      gap: 20px;
+      align-items: center;
+    }
+    .payment-item:last-child { border-bottom: none; }
+    .payment-info h3 { margin: 0 0 8px 0; font-size: 16px; }
+    .payment-info p { margin: 4px 0; font-size: 13px; color: var(--muted); }
+    .badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-align: center; }
+    .badge.pending { background: #fef3c7; color: #92400e; }
+    .badge.confirmed { background: #ecfdf5; color: #065f46; }
+    .badge.rejected { background: #fee2e2; color: #7f1d1d; }
+    .btn-sm { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .btn-confirm { background: var(--green); color: white; }
+    .btn-confirm:hover { background: var(--green-dark); }
+    .btn-reject { background: #ef4444; color: white; }
+    .btn-reject:hover { background: #dc2626; }
+    .actions { display: flex; gap: 8px; }
+    .logout-btn { float: right; }
+    @media (max-width: 768px) {
+      .payment-item { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<header class="navbar scrolled" style="border-bottom: 2px solid var(--green);">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span> <span style="color: var(--green); margin-left: 8px;">🔐 Admin</span></a>
+    <button class="btn-ghost logout-btn" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 style="font-size: 32px; margin-bottom: 8px;">⚙️ Gestion des paiements</h1>
+    <p style="color: var(--muted); margin: 0;">Validez ou rejetez les demandes Top Annonce</p>
+  </div>
+
+  <div id="adminAlert" style="background: #fef3c7; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 24px; color: #92400e; display: none;"></div>
+
+  <div class="payment-list">
+    <div style="padding: 20px; border-bottom: 2px solid var(--border); background: var(--bg); border-radius: 12px 12px 0 0;">
+      <h2 style="margin: 0; font-size: 18px;">Demandes en attente (<span id="pendingCount">0</span>)</h2>
+    </div>
+    <div id="paymentsList"></div>
+  </div>
+
+  <div style="text-align: center; margin-top: 24px; color: var(--muted); font-size: 13px;">
+    État des demandes mis à jour en temps réel
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, query, where, onSnapshot, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+window.logout = () => {
+  signOut(auth).then(() => window.location.href = 'index.html');
+};
+
+// Redirection si pas (admin) connecté - À adapter selon votre système
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = 'connexion.html';
+    return;
+  }
+  
+  // Charger les demandes
+  loadPayments();
+});
+
+const methodLabels = { wave: '〰️ Wave', orange: '🟠 Orange Money', free: '💳 Free Money' };
+const statusLabels = { pending: '⏳ En attente', confirmed: '✅ Confirmé', rejected: '❌ Rejeté' };
+
+function loadPayments() {
+  const q = query(collection(db, 'top_demandes'), where('status', '==', 'pending'));
+  onSnapshot(q, (snapshot) => {
+    const payments = [];
+    snapshot.forEach(doc => {
+      payments.push({ id: doc.id, ...doc.data() });
+    });
+
+    document.getElementById('pendingCount').textContent = payments.length;
+    const list = document.getElementById('paymentsList');
+    
+    if (payments.length === 0) {
+      list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--muted);">Aucune demande en attente ✨</div>';
+      return;
+    }
+
+    list.innerHTML = payments.map(p => `
+      <div class="payment-item">
+        <div class="payment-info">
+          <h3>${p.phone}</h3>
+          <p>📱 Code: <strong>${p.code}</strong></p>
+          <p>🕐 ${new Date(p.createdAt?.toDate?.() || p.createdAt).toLocaleString('fr-FR')}</p>
+        </div>
+        <div style="text-align: center;">
+          <div class="badge pending">${methodLabels[p.method] || p.method}</div>
+        </div>
+        <div style="text-align: center;">
+          <div class="badge pending">⏳ En attente</div>
+        </div>
+        <div class="actions">
+          <button class="btn-sm btn-confirm" onclick="confirmPayment('${p.id}')">✅ Confirmer</button>
+          <button class="btn-sm btn-reject" onclick="rejectPayment('${p.id}')">❌ Rejeter</button>
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+window.confirmPayment = async (paymentId) => {
+  try {
+    await updateDoc(doc(db, 'top_demandes', paymentId), {
+      status: 'confirmed',
+      updatedAt: new Date(),
+    });
+    showAlert('✅ Paiement confirmé - Top Annonce activé !');
+  } catch (error) {
+    showAlert('❌ Erreur: ' + error.message);
+  }
+};
+
+window.rejectPayment = async (paymentId) => {
+  if (!confirm('Êtes-vous sûr de vouloir rejeter cette demande ?')) return;
+  try {
+    await updateDoc(doc(db, 'top_demandes', paymentId), {
+      status: 'rejected',
+      updatedAt: new Date(),
+      rejectionReason: 'Code invalide ou paiement non reçu',
+    });
+    showAlert('❌ Demande rejetée');
+  } catch (error) {
+    showAlert('❌ Erreur: ' + error.message);
+  }
+};
+
+function showAlert(msg) {
+  const alert = document.getElementById('adminAlert');
+  alert.textContent = msg;
+  alert.style.display = 'block';
+  setTimeout(() => alert.style.display = 'none', 3000);
+}
+</script>
+</body>
+</html>

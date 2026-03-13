@@ -1,0 +1,10 @@
+{
+  "name": "locsenegal-functions",
+  "version": "1.0.0",
+  "description": "Netlify Functions for LocSenegal payments",
+  "main": "netlify/functions/validate-payment.js",
+  "dependencies": {},
+  "engines": {
+    "node": "18.x"
+  }
+}

@@ -44,6 +44,7 @@ service cloud.firestore {
     match /top_demandes/{id} {
       allow create: if true;
       allow read: if request.auth != null;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }

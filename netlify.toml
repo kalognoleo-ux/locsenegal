@@ -1,0 +1,7 @@
+[build]
+  command = "echo 'No build command'"
+  publish = "."
+  functions = "netlify/functions"
+
+[dev]
+  port = 8000
