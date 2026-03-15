@@ -231,18 +231,58 @@ document.getElementById('navBurger').addEventListener('click', () => {
 // ✅ Vérifier le statut du paiement après redirection de PayDunya
 const urlParams = new URLSearchParams(window.location.search);
 const paymentStatus = urlParams.get('status');
+const checkoutToken = urlParams.get('checkout');
 
-if (paymentStatus === 'success') {
-  document.getElementById('topSuccess').innerHTML = `
-    🎉 Paiement reçu avec succès !<br>
-    <small style="color: var(--muted); margin-top: 8px; display: block;">
-      Votre Top Annonce va être activé dans quelques secondes. Vous recevrez une notification par SMS.
-    </small>
+if (paymentStatus === 'success' && checkoutToken) {
+  const successEl = document.getElementById('topSuccess');
+  successEl.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="loader-small"></div>
+      <div>Vérification du paiement en cours...</div>
+    </div>
   `;
-  document.getElementById('topSuccess').style.display = 'block';
+  successEl.style.display = 'block';
   document.getElementById('topForm').style.display = 'none';
   
-  setTimeout(() => window.location.href = 'profil.html', 3000);
+  // Appeler la fonction de validation
+  fetch('/.netlify/functions/validate-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token: checkoutToken,
+      userId: auth.currentUser?.uid || null
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success && data.verified) {
+      successEl.innerHTML = `
+        🎉 Paiement confirmé !<br>
+        <small style="color: var(--muted); margin-top: 8px; display: block;">
+          Votre Top Annonce est maintenant activé. Redirection vers votre profil...
+        </small>
+      `;
+      setTimeout(() => window.location.href = 'profil.html', 3000);
+    } else {
+      successEl.innerHTML = `
+        ℹ️ Paiement reçu, activation en cours...<br>
+        <small style="color: var(--muted); margin-top: 8px; display: block;">
+          Nous finalisons l'activation de votre annonce. Merci de patienter quelques instants.
+        </small>
+      `;
+      setTimeout(() => window.location.href = 'profil.html', 5000);
+    }
+  })
+  .catch(err => {
+    console.error('Erreur validation:', err);
+    successEl.innerHTML = `
+      ✅ Paiement reçu !<br>
+      <small style="color: var(--muted); margin-top: 8px; display: block;">
+        Votre annonce sera activée sous peu. Redirection...
+      </small>
+    `;
+    setTimeout(() => window.location.href = 'profil.html', 3000);
+  });
 } else if (paymentStatus === 'cancelled') {
   document.getElementById('topError').textContent = 'Paiement annulé. Vous pouvez réessayer.';
   document.getElementById('topError').style.display = 'block';

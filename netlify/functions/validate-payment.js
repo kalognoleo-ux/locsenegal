@@ -1,7 +1,11 @@
-// Fonction Netlify pour valider les paiements avec Firestore REST API
-
+// Fonction Netlify pour valider les paiements (Manuel ou PayDunya)
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'locsenegal-c51f3';
 const API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU';
+
+// Clés PayDunya pour vérification serveur
+const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY || 'KC6G-LNKI-CWUR-6LMA-W2LL';
+const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY || 'SOTG-LEUA-VFZG-WVJ7-COQF';
+const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN || '3WHD-VXAM-R9Q3-MXSV-U2ME';
 
 exports.handler = async (req, res) => {
   // Configuration CORS
@@ -18,41 +22,63 @@ exports.handler = async (req, res) => {
   }
 
   try {
-    const { code, method, phone, userId, verified } = req.body;
+    const { token, code, method, phone, userId } = req.body;
+    let isVerified = false;
+    let paymentStatus = 'pending';
+    let transactionToken = token || code || 'unknown';
 
-    // ✅ Validation du code
-    if (!code || code.length < 6) {
-      return res.status(400).json({ error: 'Code trop court (min 6 caractères)' });
+    // 1️⃣ CAS : Validation via TOKEN PayDunya (Automatique)
+    if (token) {
+      console.log(`🔍 Vérification du token PayDunya: ${token}`);
+      const confirmUrl = `https://app.paydunya.com/api/v1/checkouts/confirm/${token}`;
+      
+      const paydunyaResponse = await fetch(confirmUrl, {
+        method: 'GET',
+        headers: {
+          'PAYDUNYA-MASTER-KEY': PAYDUNYA_MASTER_KEY,
+          'PAYDUNYA-PRIVATE-KEY': PAYDUNYA_PRIVATE_KEY,
+          'PAYDUNYA-TOKEN': PAYDUNYA_TOKEN
+        }
+      });
+
+      if (paydunyaResponse.ok) {
+        const data = await paydunyaResponse.json();
+        console.log('📄 Réponse PayDunya Status:', JSON.stringify(data));
+        
+        if (data.status === 'completed') {
+          isVerified = true;
+          paymentStatus = 'confirmed';
+        }
+      } else {
+        console.error('❌ Erreur API PayDunya Status:', await paydunyaResponse.text());
+      }
+    } 
+    // 2️⃣ CAS : Validation via CODE (Manuel)
+    else if (code && code.length >= 6) {
+      console.log(`📝 Enregistrement manuel du code: ${code}`);
+      paymentStatus = 'pending'; // Nécessite validation admin
+    } else {
+      return res.status(400).json({ error: 'Token ou Code de validation manquant' });
     }
 
-    // ✅ Validation de la méthode
-    const validMethods = ['wave', 'orange', 'free'];
-    if (!validMethods.includes(method)) {
-      return res.status(400).json({ error: 'Méthode de paiement invalide' });
-    }
-
-    // ✅ Validation du téléphone
-    if (!phone || phone.length < 6) {
-      return res.status(400).json({ error: 'Numéro de téléphone invalide' });
-    }
-
-    // 📝 Préparer le document pour Firestore
+    // 📝 Préparer les données pour Firestore
     const timestamp = new Date().toISOString();
     const paymentData = {
       fields: {
-        code: { stringValue: code.toUpperCase() },
-        method: { stringValue: method },
-        phone: { stringValue: phone },
+        code: { stringValue: (code || token || '').toUpperCase() },
+        method: { stringValue: method || 'unknown' },
+        phone: { stringValue: phone || 'unknown' },
         userId: { stringValue: userId || 'anonymous' },
-        status: { stringValue: verified ? 'confirmed' : 'pending' }, // Si vérifié => confirmed
+        status: { stringValue: paymentStatus },
+        verifiedAt: isVerified ? { timestampValue: timestamp } : undefined,
         createdAt: { timestampValue: timestamp },
         updatedAt: { timestampValue: timestamp },
         ipAddress: { stringValue: req.headers['x-forwarded-for'] || req.ip || 'unknown' },
-        verified: { booleanValue: !!verified },
+        autoActivated: { booleanValue: isVerified },
       },
     };
 
-    // 🚀 Envoyer les données à Firestore via REST API
+    // 🚀 Sauvegarde dans Firestore
     const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/top_demandes?key=${API_KEY}`;
 
     const firebaseResponse = await fetch(firestoreUrl, {
@@ -63,25 +89,22 @@ exports.handler = async (req, res) => {
 
     if (!firebaseResponse.ok) {
       const error = await firebaseResponse.text();
-      console.error('Erreur Firestore:', error);
-      return res.status(500).json({ error: 'Erreur lors de l\'enregistrement' });
+      console.error('❌ Erreur Firestore:', error);
+      return res.status(500).json({ error: 'Erreur lors de l\'enregistrement Firestore' });
     }
 
     const result = await firebaseResponse.json();
     const docId = result.name?.split('/').pop() || 'unknown';
 
-    // ✅ Succès
     return res.status(200).json({
       success: true,
-      message: 'Demande reçue. Vérification en cours...',
-      requestId: docId,
+      verified: isVerified,
+      message: isVerified ? 'Paiement confirmé et activé !' : 'Demande enregistrée, en attente de vérification.',
+      docId
     });
 
   } catch (error) {
-    console.error('Erreur validation:', error);
-    return res.status(500).json({
-      error: 'Erreur serveur',
-      details: error.message,
-    });
+    console.error('❌ Erreur validation-payment:', error);
+    return res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
 };

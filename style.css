@@ -359,6 +359,12 @@ button { cursor: pointer; font-family: var(--font-body); border: none; }
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+.loader-small {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--green-mid);
+  border-top-color: var(--green);
+  animation: spin 0.6s linear infinite;
+}
 
 /* ── EMPTY STATE ─────────────────────────── */
 .empty-state {
