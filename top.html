@@ -45,48 +45,39 @@
     </div>
   </div>
 
-  <!-- Étapes paiement -->
+  <!-- Étapes paiement (NOUVEAU FLUX) -->
   <div style="margin-bottom:32px">
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">Comment payer ?</h2>
-
-    <div class="pay-methods" style="margin-bottom:20px">
-      <div class="pay-badge wave" style="cursor:pointer" onclick="selectMethod('wave')">〰️ Wave</div>
-      <div class="pay-badge orange" style="cursor:pointer" onclick="selectMethod('orange')">🟠 Orange Money</div>
-      <div class="pay-badge free" style="cursor:pointer" onclick="selectMethod('free')">💳 Free Money</div>
-    </div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">Comment ça fonctionne ?</h2>
 
     <div class="top-steps">
       <div class="top-step">
         <div class="top-step-num">1</div>
         <div>
-          <strong>Envoyez 2 000 F CFA</strong>
-          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Numéro de paiement : <a href="tel:+221774351695" style="color:var(--green-dark);font-weight:800">+221 77 435 1695</a></p>
-          <div id="methodDetails" style="margin-top:10px;background:var(--bg);border-radius:8px;padding:12px;font-size:13px;color:var(--ink-soft)">
-            Sélectionnez votre moyen de paiement ci-dessus
-          </div>
+          <strong>Entrez votre numéro et montant</strong>
+          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Vous serez redirigé vers Wave ou Orange Money pour finaliser le paiement</p>
         </div>
       </div>
       <div class="top-step">
         <div class="top-step-num">2</div>
         <div>
-          <strong>Notez le code de transaction</strong>
-          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Vous recevrez un SMS avec un code de confirmation après le paiement.</p>
+          <strong>Finalisez le paiement</strong>
+          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Confirmez la transaction dans votre app Wave ou Orange Money</p>
         </div>
       </div>
       <div class="top-step">
         <div class="top-step-num">3</div>
         <div>
-          <strong>Entrez le code ci-dessous</strong>
-          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Votre annonce sera boostée en moins de 10 minutes.</p>
+          <strong>Top Annonce activé automatiquement ✅</strong>
+          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Votre annonce sera boostée immédiatement après la confirmation</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Formulaire activation -->
+  <!-- Formulaire paiement (NOUVEAU) -->
   <div class="form-card">
-    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">🔑 Activer le Top Annonce</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Entrez le code reçu par SMS après votre paiement</p>
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">💳 Passer au paiement</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Paiement sécurisé via Wave, Orange Money ou Carte</p>
 
     <form id="topForm">
       <div class="field">
@@ -94,21 +85,22 @@
         <input type="tel" id="topPhone" placeholder="77 435 1695" required>
       </div>
       <div class="field">
-        <label>Code de transaction reçu *</label>
-        <input type="text" id="topCode" placeholder="Ex: WV123456789 ou OM987654321" required style="letter-spacing:1px;font-size:16px">
+        <label>Montant à payer (F CFA)</label>
+        <input type="number" id="topAmount" placeholder="2000" value="2000" min="500" step="100" required>
+        <small style="margin-top:6px;color:var(--muted)">Montant minimum: 500 FCFA</small>
       </div>
       <div class="field">
-        <label>Moyen de paiement utilisé *</label>
+        <label>Moyen de paiement préféré</label>
         <select id="topMethod" required>
-          <option value="">Sélectionner</option>
+          <option value="">Sélectionner un moyen</option>
           <option value="wave">〰️ Wave</option>
           <option value="orange">🟠 Orange Money</option>
-          <option value="free">💳 Free Money</option>
+          <option value="free">💳 Free Money / Carte</option>
         </select>
       </div>
       <div id="topError" class="form-error" style="display:none"></div>
       <div id="topSuccess" style="display:none;background:#ecfdf5;border:1.5px solid #10b981;border-radius:8px;padding:14px;margin-bottom:16px;font-weight:600;color:#065f46"></div>
-      <button type="submit" class="btn-primary form-submit" id="topBtn">✅ Valider et activer</button>
+      <button type="submit" class="btn-primary form-submit" id="topBtn">🔗 Continuer vers le paiement</button>
     </form>
   </div>
 
@@ -141,9 +133,9 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 const INSTRUCTIONS = {
-  wave: '1. Ouvrez l\'app Wave → Payer → Entrez +221774351695 → Montant: 2000 FCFA → Confirmer',
-  orange: '1. Composez #144# ou ouvrez l\'app Orange Money → Transfert d\'argent → +221774351695 → 2000 FCFA',
-  free: '1. Ouvrez l\'app Free Money → Envoyer → +221774351695 → 2000 FCFA → Valider avec votre code PIN',
+  wave: '〰️ Wave — Paiement sécurisé et instantané via l\'application Wave',
+  orange: '🟠 Orange Money — Transfert d\'argent via Orange Money',
+  free: '💳 Free Money & Cartes — Paiement par carte bancaire',
 };
 
 window.selectMethod = (m) => {
@@ -156,27 +148,40 @@ window.selectMethod = (m) => {
 document.getElementById('topForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('topBtn');
-  btn.textContent = 'Envoi à la vérification…'; btn.disabled = true;
+  btn.textContent = 'Redirection vers le paiement…'; 
+  btn.disabled = true;
   document.getElementById('topError').style.display = 'none';
 
-  const code = document.getElementById('topCode').value.trim();
-  const method = document.getElementById('topMethod').value;
   const phone = document.getElementById('topPhone').value.trim();
+  const amount = parseInt(document.getElementById('topAmount').value) || 2000;
+  const method = document.getElementById('topMethod').value;
 
-  if (code.length < 6) {
-    document.getElementById('topError').textContent = 'Code trop court. Vérifiez votre SMS.';
+  // ✅ Validation
+  if (!phone || phone.length < 6) {
+    document.getElementById('topError').textContent = 'Numéro de téléphone invalide.';
     document.getElementById('topError').style.display = 'block';
-    btn.textContent = '✅ Valider et activer'; btn.disabled = false;
+    btn.textContent = '🔗 Continuer vers le paiement'; 
+    btn.disabled = false;
+    return;
+  }
+
+  if (amount < 500) {
+    document.getElementById('topError').textContent = 'Montant minimum: 500 FCFA';
+    document.getElementById('topError').style.display = 'block';
+    btn.textContent = '🔗 Continuer vers le paiement'; 
+    btn.disabled = false;
     return;
   }
 
   try {
-    // Appel à la fonction Netlify pour valider le paiement
-    const response = await fetch('/.netlify/functions/validate-payment', {
+    // 🚀 Appel à la fonction initiate-payment
+    const response = await fetch('/.netlify/functions/initiate-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        code, method, phone,
+        phone,
+        amount,
+        method,
         userId: auth.currentUser?.uid || null,
       }),
     });
@@ -184,27 +189,37 @@ document.getElementById('topForm').addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (!response.ok) {
-      document.getElementById('topError').textContent = result.error || 'Erreur lors de la validation.';
+      document.getElementById('topError').textContent = result.error || 'Erreur lors de l\'initialisation du paiement.';
       document.getElementById('topError').style.display = 'block';
-      btn.textContent = '✅ Valider et activer'; btn.disabled = false;
+      btn.textContent = '🔗 Continuer vers le paiement'; 
+      btn.disabled = false;
       return;
     }
 
-    document.getElementById('topSuccess').innerHTML = `
-      🎉 Demande reçue avec succès !<br>
-      <small style="color: var(--muted); margin-top: 8px; display: block;">
-        ID de demande: <code style="background: var(--bg); padding: 2px 6px; border-radius: 4px;">${result.requestId}</code><br>
-        Votre Top Annonce sera activée après vérification. Vous recevrez une confirmation par SMS.
-      </small>
-    `;
-    document.getElementById('topSuccess').style.display = 'block';
-    btn.textContent = '✅ Demande envoyée !';
-    setTimeout(() => window.location.href = 'profil.html', 4000);
+    // ✅ Redirection vers PayDunya
+    if (result.redirectUrl) {
+      document.getElementById('topSuccess').innerHTML = `
+        ✅ Redirection en cours...<br>
+        <small style="color: var(--muted); margin-top: 8px; display: block;">
+          Vous serez redirigé vers la plateforme de paiement sécurisée.
+        </small>
+      `;
+      document.getElementById('topSuccess').style.display = 'block';
+      
+      // Redirection après 1.5s pour que l'utilisateur voit le message
+      setTimeout(() => {
+        window.location.href = result.redirectUrl;
+      }, 1500);
+    } else {
+      throw new Error('Pas de lien de paiement reçu');
+    }
+
   } catch(err) {
     console.error('Erreur:', err);
     document.getElementById('topError').textContent = 'Erreur réseau. Réessayez.';
     document.getElementById('topError').style.display = 'block';
-    btn.textContent = '✅ Valider et activer'; btn.disabled = false;
+    btn.textContent = '🔗 Continuer vers le paiement'; 
+    btn.disabled = false;
   }
 });
 
@@ -212,6 +227,27 @@ document.getElementById('navBurger').addEventListener('click', () => {
   document.getElementById('navLinks').classList.toggle('open');
   document.getElementById('navBurger').classList.toggle('open');
 });
+
+// ✅ Vérifier le statut du paiement après redirection de PayDunya
+const urlParams = new URLSearchParams(window.location.search);
+const paymentStatus = urlParams.get('status');
+
+if (paymentStatus === 'success') {
+  document.getElementById('topSuccess').innerHTML = `
+    🎉 Paiement reçu avec succès !<br>
+    <small style="color: var(--muted); margin-top: 8px; display: block;">
+      Votre Top Annonce va être activé dans quelques secondes. Vous recevrez une notification par SMS.
+    </small>
+  `;
+  document.getElementById('topSuccess').style.display = 'block';
+  document.getElementById('topForm').style.display = 'none';
+  
+  setTimeout(() => window.location.href = 'profil.html', 3000);
+} else if (paymentStatus === 'cancelled') {
+  document.getElementById('topError').textContent = 'Paiement annulé. Vous pouvez réessayer.';
+  document.getElementById('topError').style.display = 'block';
+}
+
 </script>
 </body>
 </html>

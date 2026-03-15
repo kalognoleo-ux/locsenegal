@@ -18,7 +18,7 @@ exports.handler = async (req, res) => {
   }
 
   try {
-    const { code, method, phone, userId } = req.body;
+    const { code, method, phone, userId, verified } = req.body;
 
     // ✅ Validation du code
     if (!code || code.length < 6) {
@@ -44,10 +44,11 @@ exports.handler = async (req, res) => {
         method: { stringValue: method },
         phone: { stringValue: phone },
         userId: { stringValue: userId || 'anonymous' },
-        status: { stringValue: 'pending' },
+        status: { stringValue: verified ? 'confirmed' : 'pending' }, // Si vérifié => confirmed
         createdAt: { timestampValue: timestamp },
         updatedAt: { timestampValue: timestamp },
         ipAddress: { stringValue: req.headers['x-forwarded-for'] || req.ip || 'unknown' },
+        verified: { booleanValue: !!verified },
       },
     };
 
