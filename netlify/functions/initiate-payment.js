@@ -1,72 +1,84 @@
 // Fonction Netlify pour initier un paiement PayDunya
 // Authentification V1 via Master/Private Key et Token
-const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY || 'KC6G-LNKI-CWUR-6LMA-W2LL';
-const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY || 'SOTG-LEUA-VFZG-WVJ7-COQF';
-const PAYDUNYA_PUBLIC_KEY = process.env.PAYDUNYA_PUBLIC_KEY || 'BZIW-ECWZ-C84H-MTE7-N64Q';
-const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN || '3WHD-VXAM-R9Q3-MXSV-U2ME';
-const PAYDUNYA_SECRET_KEY = process.env.PAYDUNYA_SECRET_KEY || 'EZFQ-LUMI-7ZD5-ECD5-GVXR';
+const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY;
+const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY;
+const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN;
 
-const PAYDUNYA_ENDPOINT = 'https://app.paydunya.com/api/v1/checkouts/';
+const PAYDUNYA_ENDPOINT = 'https://app.paydunya.com/api/v1/checkout-invoice/create';
 
-exports.handler = async (req, res) => {
-  // Configuration CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+exports.handler = async (event) => {
+  // Gestion CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: CORS_HEADERS, body: '' };
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée' });
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Méthode non autorisée' }),
+    };
   }
 
   try {
-    const { phone, amount, method, userId } = req.body;
+    const { phone, amount, method, userId } = JSON.parse(event.body || '{}');
 
     // ✅ Validation des paramètres
     if (!phone || phone.length < 6) {
-      return res.status(400).json({ error: 'Numéro de téléphone invalide' });
+      return {
+        statusCode: 400,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Numéro de téléphone invalide' }),
+      };
     }
 
     if (!amount || amount < 500) {
-      return res.status(400).json({ error: 'Montant invalide (min 500 FCFA)' });
+      return {
+        statusCode: 400,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Montant invalide (min 500 FCFA)' }),
+      };
     }
 
     const validMethods = ['wave', 'orange', 'free'];
     if (!validMethods.includes(method)) {
-      return res.status(400).json({ error: 'Méthode de paiement invalide' });
+      return {
+        statusCode: 400,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Méthode de paiement invalide' }),
+      };
     }
 
-    // 📝 Préparer les données PayDunya
+    const siteUrl = process.env.URL || 'https://locsenegal.netlify.app';
+
+    // 📝 Préparer les données PayDunya (format checkout-invoice)
     const invoiceData = {
       invoice: {
-        number: `TOP-${Date.now()}`, // Numéro unique de facture
-        memo: `Top Annonce LocSenegal - 7 jours de visibilité`,
+        total_amount: amount,
+        description: `Top Annonce LocSenegal - 7 jours de visibilité (${method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money'})`,
       },
-      customer: {
-        phone: phone,
-        email: `user-${userId || 'anonymous'}@locsenegal.sn`,
+      store: {
+        name: 'LocSenegal',
+        tagline: 'Location immobilière au Sénégal',
+        website_url: siteUrl,
       },
-      items: [
-        {
-          name: 'Top Annonce (7 jours)',
-          description: 'Boost votre annonce avec le Top Annonce pour 7 jours de visibilité maximale',
-          quantity: 1,
-          unit_price: amount,
-        },
-      ],
-      total_amount: amount,
-      description: `Activation du Top Annonce pour ${method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money'}`,
-      return_url: `${process.env.URL || 'https://locsenegal.netlify.app'}/top.html?status=success&checkout={checkout_token}`,
-      cancel_url: `${process.env.URL || 'https://locsenegal.netlify.app'}/top.html?status=cancelled`,
-      callback_url: `${process.env.URL || 'https://locsenegal.netlify.app'}/.netlify/functions/paydunya-webhook`,
-      metadata: {
-        userId,
+      actions: {
+        return_url: `${siteUrl}/top.html?status=success&checkout={token}`,
+        cancel_url: `${siteUrl}/top.html?status=cancelled`,
+        callback_url: `${siteUrl}/.netlify/functions/paydunya-webhook`,
+      },
+      custom_data: {
+        userId: userId || 'anonymous',
         method,
         phone,
-        originalAmount: amount,
+        originalAmount: String(amount),
       },
     };
 
@@ -75,7 +87,7 @@ exports.handler = async (req, res) => {
       'Content-Type': 'application/json',
       'PAYDUNYA-MASTER-KEY': PAYDUNYA_MASTER_KEY,
       'PAYDUNYA-PRIVATE-KEY': PAYDUNYA_PRIVATE_KEY,
-      'PAYDUNYA-TOKEN': PAYDUNYA_TOKEN
+      'PAYDUNYA-TOKEN': PAYDUNYA_TOKEN,
     };
 
     // 🚀 Appel API PayDunya pour créer le checkout
@@ -85,30 +97,57 @@ exports.handler = async (req, res) => {
       body: JSON.stringify(invoiceData),
     });
 
-    if (!paydunyaResponse.ok) {
-      const error = await paydunyaResponse.text();
-      console.error('Erreur PayDunya:', error);
-      return res.status(500).json({ 
-        error: 'Erreur lors de la création du lien de paiement',
-        details: error 
-      });
+    const responseText = await paydunyaResponse.text();
+    console.log('PayDunya response status:', paydunyaResponse.status);
+    console.log('PayDunya response body:', responseText);
+
+    let checkoutData;
+    try {
+      checkoutData = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Erreur parsing réponse PayDunya:', responseText);
+      return {
+        statusCode: 500,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({
+          error: 'Réponse invalide de PayDunya',
+          details: responseText.substring(0, 200),
+        }),
+      };
     }
 
-    const checkoutData = await paydunyaResponse.json();
+    if (checkoutData.response_code !== '00') {
+      console.error('Erreur PayDunya:', checkoutData);
+      return {
+        statusCode: 500,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({
+          error: checkoutData.response_text || 'Erreur lors de la création du paiement',
+          details: checkoutData,
+        }),
+      };
+    }
 
     // ✅ Retourner le lien de redirection
-    return res.status(200).json({
-      success: true,
-      redirectUrl: checkoutData.response.checkout_url || checkoutData.checkout_url,
-      checkoutToken: checkoutData.response.token || checkoutData.token,
-      message: 'Redirigé vers le paiement...',
-    });
-
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({
+        success: true,
+        redirectUrl: checkoutData.response_text,
+        checkoutToken: checkoutData.token,
+        message: 'Redirigé vers le paiement...',
+      }),
+    };
   } catch (error) {
     console.error('Erreur initiate-payment:', error);
-    return res.status(500).json({
-      error: 'Erreur serveur',
-      details: error.message,
-    });
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({
+        error: 'Erreur serveur',
+        details: error.message,
+      }),
+    };
   }
 };

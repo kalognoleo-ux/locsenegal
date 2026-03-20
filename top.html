@@ -132,19 +132,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const INSTRUCTIONS = {
-  wave: '〰️ Wave — Paiement sécurisé et instantané via l\'application Wave',
-  orange: '🟠 Orange Money — Transfert d\'argent via Orange Money',
-  free: '💳 Free Money & Cartes — Paiement par carte bancaire',
-};
-
-window.selectMethod = (m) => {
-  document.getElementById('methodDetails').textContent = INSTRUCTIONS[m] || '';
-  document.getElementById('topMethod').value = m;
-  document.querySelectorAll('.pay-badge').forEach(b => b.style.outline = 'none');
-  event.target.style.outline = '2px solid var(--green)';
-};
-
 document.getElementById('topForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('topBtn');
