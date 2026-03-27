@@ -211,7 +211,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 const firebaseConfig = {
@@ -321,6 +321,25 @@ document.getElementById('pubForm').addEventListener('submit', async (e) => {
   document.getElementById('pubError').style.display = 'none';
 
   try {
+    // VÉRIFICATION DES LIMITES D'ABONNEMENT
+    const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+    const plan = userDoc.exists() ? (userDoc.data().plan || 'gratuit') : 'gratuit';
+    
+    const q = query(collection(db, 'annonces'), where('userId', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    const annoncesCount = snap.docs.length;
+    
+    let limit = 1;
+    if (plan === 'proprietaire') limit = 5;
+    if (plan === 'agence') limit = 9999;
+    
+    if (annoncesCount >= limit) {
+      document.getElementById('pubError').innerHTML = `Vous avez atteint votre limite d'annonces (${limit}). <a href="tarifs.html" style="text-decoration:underline">Mettez à niveau votre compte</a> pour publier plus.`;
+      document.getElementById('pubError').style.display = 'block';
+      btn.textContent = 'Publier l\'annonce'; btn.disabled = false;
+      return;
+    }
+
     // Upload photos
     photoURLs = [];
     if (photoFiles.length > 0) {

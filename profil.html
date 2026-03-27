@@ -166,6 +166,8 @@ onAuthStateChanged(auth, async (user) => {
       const role = data.role || 'locataire';
       document.getElementById('infoRole').textContent = role === 'proprietaire' ? '🏠 Propriétaire' : '🔍 Locataire';
 
+      window.userPlan = data.plan || 'gratuit';
+
       // Adapter l'interface selon le rôle
       const badge = document.getElementById('profilRoleBadge');
       if (role === 'proprietaire') {
@@ -188,7 +190,7 @@ onAuthStateChanged(auth, async (user) => {
     const q = query(collection(db, 'annonces'), where('userId', '==', user.uid));
     const snap = await getDocs(q);
     const annonces = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    afficherAnnonces(annonces, user.uid);
+    afficherAnnonces(annonces, user.uid, window.userPlan || 'gratuit');
   } catch(e) {
     // Démo
     afficherAnnonces([
@@ -198,9 +200,10 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-function afficherAnnonces(annonces, uid) {
+function afficherAnnonces(annonces, uid, userPlan = 'gratuit') {
   const grid = document.getElementById('mesAnnonces');
   document.getElementById('statAnnonces').textContent = annonces.length;
+  
   const totalVues = annonces.reduce((s,a) => s + (a.views||0), 0);
   const totalTop = annonces.filter(a => a.top).length;
   document.getElementById('statVues').textContent = totalVues;

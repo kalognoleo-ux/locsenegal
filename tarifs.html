@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tarifs & Abonnements — LocSenegal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Styling for pricing cards */
+    .pricing-section { padding: 80px 0; background: #fafafa; }
+    .pricing-header { text-align: center; margin-bottom: 60px; }
+    .pricing-header h1 { font-family: var(--font-display); font-size: 40px; color: var(--green-dark); margin-bottom: 16px; }
+    .pricing-header p { font-size: 18px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.5; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .pricing-card { background: #fff; border-radius: 20px; padding: 40px; box-shadow: var(--shadow); position: relative; border: 1px solid var(--border); display: flex; flex-direction: column; }
+    .pricing-card.premium { border: 2px solid var(--green); transform: scale(1.05); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15); z-index: 2; }
+    .popular-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .pricing-name { font-size: 20px; font-weight: 700; color: var(--green-dark); margin-bottom: 15px; }
+    .pricing-price { font-size: 40px; font-weight: 900; color: var(--ink); margin-bottom: 5px; font-family: var(--font-display); }
+    .pricing-period { font-size: 14px; color: var(--muted); font-weight: 500; }
+    .pricing-features { margin: 30px 0; list-style: none; padding: 0; flex-grow: 1; }
+    .pricing-features li { display: flex; align-items: flex-start; margin-bottom: 15px; color: var(--ink); font-size: 15px; }
+    .pricing-features li::before { content: "✓"; color: var(--green); font-weight: 900; margin-right: 12px; font-size: 18px; margin-top: -2px; }
+    .pricing-features li.disabled { color: var(--muted); }
+    .pricing-features li.disabled::before { content: "✕"; color: #ef4444; }
+    .btn-pricing { display: block; width: 100%; text-align: center; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 16px; transition: all 0.2s; cursor: pointer; border: none; font-family: var(--font-body); }
+    .btn-pricing.outline { background: transparent; border: 2px solid var(--border); color: var(--ink); }
+    .btn-pricing.outline:hover { border-color: var(--green); color: var(--green); }
+    .btn-pricing.solid { background: var(--green); color: #fff; }
+    .btn-pricing.solid:hover { background: var(--green-dark); }
+    @media(max-width: 900px) {
+      .pricing-grid { grid-template-columns: 1fr; }
+      .pricing-card.premium { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar scrolled" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="carte.html" class="nav-link">🗺️ Carte</a>
+      <a href="tarifs.html" class="nav-link active">Tarifs</a>
+      <a href="top.html" class="nav-link">⭐ Top</a>
+      <a href="publication.html" class="nav-btn-pub">+ Publier</a>
+      <a href="connexion.html" class="nav-link" id="navAuth">Connexion</a>
+      <a href="dashboard.html" class="nav-link" id="navDashboard" style="display:none">📊 Dashboard</a>
+      <a href="profil.html" class="nav-avatar" id="navProfil" style="display:none">
+        <span id="navInitials">A</span>
+      </a>
+    </nav>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<section class="pricing-section">
+  <div class="pricing-header">
+    <h1>Choisissez votre forfait</h1>
+    <p>Boostez votre visibilité et louez vos biens plus rapidement avec nos offres pensées pour vous.</p>
+  </div>
+
+  <div class="pricing-grid">
+    <!-- Gratuit -->
+    <div class="pricing-card">
+      <div class="pricing-name">Gratuit</div>
+      <div class="pricing-price">0 <span style="font-size:20px">F CFA</span></div>
+      <div class="pricing-period">Pour toujours</div>
+      <ul class="pricing-features">
+        <li>1 annonce active offerte</li>
+        <li>Photos standards</li>
+        <li>Messagerie intégrée</li>
+        <li class="disabled">Pas de Top Annonce inclus</li>
+        <li class="disabled">Pas de Badge Vérifié</li>
+      </ul>
+      <button class="btn-pricing outline" id="btnGratuit" onclick="window.location.href='publication.html'">Publier une annonce</button>
+    </div>
+
+    <!-- Propriétaire -->
+    <div class="pricing-card premium">
+      <div class="popular-badge">Le plus populaire</div>
+      <div class="pricing-name">Propriétaire</div>
+      <div class="pricing-price">5 000 <span style="font-size:20px">F CFA</span></div>
+      <div class="pricing-period">par mois</div>
+      <ul class="pricing-features">
+        <li>Jusqu'à 5 annonces actives</li>
+        <li><strong>1 Top Annonce inclus / mois</strong></li>
+        <li>Badge "Propriétaire Vérifié"</li>
+        <li>Photos haute qualité</li>
+        <li>Support par email</li>
+      </ul>
+      <button class="btn-pricing solid" onclick="subscribePlan('proprietaire', 5000)">S'abonner</button>
+    </div>
+
+    <!-- Agence -->
+    <div class="pricing-card">
+      <div class="pricing-name">Agence Pro</div>
+      <div class="pricing-price">15 000 <span style="font-size:20px">F CFA</span></div>
+      <div class="pricing-period">par mois</div>
+      <ul class="pricing-features">
+        <li><strong>Annonces illimitées</strong></li>
+        <li>Dashboard de statistiques (Vues)</li>
+        <li>Top Annonces prioritaires</li>
+        <li>Badge "Agence Pro Vérifiée"</li>
+        <li>Support dédié prioritaire</li>
+      </ul>
+      <button class="btn-pricing outline" style="border-color:var(--green); color:var(--green);" onclick="subscribePlan('agence', 15000)">S'abonner</button>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" style="margin-top:0">
+  <div class="container">
+    <div class="footer-bottom" style="text-align:center; padding:20px 0; border-top:1px solid var(--border); color:var(--muted)">
+      <span>© 2025 LocSenegal 🇸🇳 — Tous droits réservés</span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="loadingOverlay">
+  <div class="modal" style="text-align:center; padding:40px;">
+    <div class="loader-ring" style="margin:0 auto 20px;"></div>
+    <h3 style="margin:0">Redirection vers PayDunya...</h3>
+    <p style="color:var(--muted); margin-top:10px;">Veuillez patienter.</p>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  const navAuth = document.getElementById('navAuth');
+  const navProfil = document.getElementById('navProfil');
+  const navInitials = document.getElementById('navInitials');
+  
+  if (user) {
+    currentUser = user;
+    navAuth.style.display = 'none';
+    navProfil.style.display = 'flex';
+    if(document.getElementById('navDashboard')) document.getElementById('navDashboard').style.display = 'inline-flex';
+    navInitials.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
+  } else {
+    currentUser = null;
+    navAuth.style.display = 'inline-flex';
+    navProfil.style.display = 'none';
+    if(document.getElementById('navDashboard')) document.getElementById('navDashboard').style.display = 'none';
+  }
+});
+
+const showToast = (msg, type='info') => {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`; t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
+};
+
+window.subscribePlan = async function(planType, price) {
+  if (!currentUser) {
+    showToast('Vous devez être connecté pour vous abonner.', 'error');
+    setTimeout(() => window.location.href = 'connexion.html?redirect=tarifs.html', 1500);
+    return;
+  }
+  
+  document.getElementById('loadingOverlay').classList.add('open');
+  
+  try {
+    const res = await fetch('/.netlify/functions/initiate-subscription', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        planType: planType,
+        price: price
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.paymentUrl) {
+      window.location.href = data.paymentUrl;
+    } else {
+      throw new Error(data.error || 'Erreur PayDunya');
+    }
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loadingOverlay').classList.remove('open');
+    showToast('Erreur lors de la création du paiement.', 'error');
+  }
+};
+
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+</script>
+</body>
+</html>

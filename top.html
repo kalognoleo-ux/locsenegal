@@ -76,8 +76,8 @@
 
   <!-- Formulaire paiement (NOUVEAU) -->
   <div class="form-card">
-    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">💳 Passer au paiement</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Paiement sécurisé via Wave, Orange Money ou Carte</p>
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">💳 Activer Top Annonce</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:24px" id="topSubtitle">Paiement sécurisé via Wave, Orange Money ou Carte</p>
 
     <form id="topForm">
       <div class="field">
@@ -117,7 +117,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -161,7 +161,39 @@ document.getElementById('topForm').addEventListener('submit', async (e) => {
   }
 
   try {
-    // 🚀 Appel à la fonction initiate-payment
+    // 🌟 Vérification des crédits d'abonnement
+    if (auth.currentUser) {
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      const credits = userDoc.exists() ? (userDoc.data().topAnnoncesCredits || 0) : 0;
+      
+      if (credits > 0) {
+        // Déduire le crédit
+        await updateDoc(userDocRef, { topAnnoncesCredits: credits - 1 });
+        
+        // Créer la demande top validée directement
+        await addDoc(collection(db, 'top_demandes'), {
+          status: 'confirmed',
+          method: 'credit_abonnement',
+          phone: phone,
+          userId: auth.currentUser.uid,
+          amount: 0,
+          createdAt: serverTimestamp(),
+          paidAt: serverTimestamp(),
+          autoActivated: true
+        });
+        
+        document.getElementById('topSuccess').innerHTML = `
+          🎉 <strong>Top Annonce activé gratuitement !</strong><br>
+          <small style="color:var(--muted);display:block;margin-top:4px">1 crédit déduit de votre abonnement.</small>
+        `;
+        document.getElementById('topSuccess').style.display = 'block';
+        setTimeout(() => window.location.href = 'profil.html', 2500);
+        return; // Arrêt ici, pas de PayDunya
+      }
+    }
+
+    // 🚀 Appel à la fonction initiate-payment (PayDunya)
     const response = await fetch('/.netlify/functions/initiate-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

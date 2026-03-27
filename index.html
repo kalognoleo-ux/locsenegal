@@ -23,9 +23,11 @@
     <nav class="nav-links" id="navLinks">
       <a href="index.html" class="nav-link active">Accueil</a>
       <a href="carte.html" class="nav-link">🗺️ Carte</a>
+      <a href="tarifs.html" class="nav-link">Tarifs</a>
       <a href="top.html" class="nav-link">⭐ Top</a>
       <a href="publication.html" class="nav-btn-pub">+ Publier</a>
       <a href="connexion.html" class="nav-link" id="navAuth">Connexion</a>
+      <a href="dashboard.html" class="nav-link" id="navDashboard" style="display:none">📊 Dashboard</a>
       <a href="profil.html" class="nav-avatar" id="navProfil" style="display:none">
         <span id="navInitials">A</span>
       </a>
@@ -299,10 +301,12 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     navAuth.style.display = 'none';
     navProfil.style.display = 'flex';
+    if(document.getElementById('navDashboard')) document.getElementById('navDashboard').style.display = 'inline-flex';
     navInitials.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
   } else {
     navAuth.style.display = 'inline-flex';
     navProfil.style.display = 'none';
+    if(document.getElementById('navDashboard')) document.getElementById('navDashboard').style.display = 'none';
   }
 });
 
