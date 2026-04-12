@@ -151,6 +151,13 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           error: checkoutData.response_text || 'Erreur lors de la création du paiement',
           details: checkoutData,
+          debug_info: {
+             url_used: PAYDUNYA_ENDPOINT,
+             key_length: PAYDUNYA_MASTER_KEY.length,
+             key_has_spaces: PAYDUNYA_MASTER_KEY.includes(' '),
+             key_has_quotes: PAYDUNYA_MASTER_KEY.includes('"'),
+             key_start: PAYDUNYA_MASTER_KEY.substring(0, 4)
+          }
         }),
       };
     }

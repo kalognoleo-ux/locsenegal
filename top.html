@@ -405,7 +405,9 @@ document.getElementById('topForm').addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (!response.ok || !result.redirectUrl) {
-      errEl.textContent = result.error || 'Erreur lors de la création du paiement. Réessayez.';
+      let msg = result.error || 'Erreur lors de la création du paiement.';
+      if (result.debug_info) msg += ' | Debug: ' + JSON.stringify(result.debug_info);
+      errEl.textContent = msg;
       errEl.style.display = 'block';
       btn.disabled = false;
       btnText.textContent = '🔒 Payer maintenant — 2 000 F CFA';
