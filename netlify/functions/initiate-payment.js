@@ -1,5 +1,7 @@
-// Fonction Netlify pour initier un paiement PayDunya
-// Authentification V1 via Master/Private Key et Token
+// Netlify Function — Création d'une facture PayDunya (Top Annonce)
+// Accepte: phone, amount, method, userId, annonceId
+// Retourne: redirectUrl + checkoutToken
+
 const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY;
 const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY;
 const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN;
@@ -28,22 +30,23 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { phone, amount, method, userId } = JSON.parse(event.body || '{}');
+    const { phone, amount, method, userId, annonceId } = JSON.parse(event.body || '{}');
 
-    // ✅ Validation des paramètres
-    if (!phone || phone.length < 6) {
+    // ── Validation des paramètres ──
+    if (!phone || phone.replace(/\s/g, '').length < 8) {
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ error: 'Numéro de téléphone invalide' }),
+        body: JSON.stringify({ error: 'Numéro de téléphone invalide (minimum 8 chiffres)' }),
       };
     }
 
-    if (!amount || amount < 500) {
+    const parsedAmount = parseInt(amount, 10);
+    if (!parsedAmount || parsedAmount < 500) {
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ error: 'Montant invalide (min 500 FCFA)' }),
+        body: JSON.stringify({ error: 'Montant invalide (minimum 500 FCFA)' }),
       };
     }
 
@@ -52,66 +55,82 @@ exports.handler = async (event) => {
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ error: 'Méthode de paiement invalide' }),
+        body: JSON.stringify({ error: 'Moyen de paiement invalide. Choisissez wave, orange ou free.' }),
       };
     }
 
     const siteUrl = process.env.URL || 'https://locsenegal.netlify.app';
 
-    // 📝 Préparer les données PayDunya (format checkout-invoice)
+    // ── URLs de retour ──
+    // return_url inclut annonce_id + token PayDunya
+    const returnUrl = annonceId
+      ? `${siteUrl}/success.html?annonce_id=${annonceId}&checkout={token}`
+      : `${siteUrl}/success.html?checkout={token}`;
+
+    const cancelUrl = `${siteUrl}/index.html`;
+
+    // ── Description lisible ──
+    const methodLabel = method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money';
+
+    // ── Payload PayDunya checkout-invoice ──
     const invoiceData = {
       invoice: {
-        total_amount: amount,
-        description: `Top Annonce LocSenegal - 7 jours de visibilité (${method === 'wave' ? 'Wave' : method === 'orange' ? 'Orange Money' : 'Free Money'})`,
+        total_amount: parsedAmount,
+        description: `Top Annonce LocSenegal — 7 jours (${methodLabel})${annonceId ? ` · Annonce ${annonceId}` : ''}`,
       },
       store: {
         name: 'LocSenegal',
         tagline: 'Location immobilière au Sénégal',
         website_url: siteUrl,
+        logo_url: `${siteUrl}/favicon.ico`,
       },
       actions: {
-        return_url: `${siteUrl}/top.html?status=success&checkout={token}`,
-        cancel_url: `${siteUrl}/top.html?status=cancelled`,
+        return_url: returnUrl,
+        cancel_url: cancelUrl,
         callback_url: `${siteUrl}/.netlify/functions/paydunya-webhook`,
       },
       custom_data: {
         userId: userId || 'anonymous',
         method,
-        phone,
-        originalAmount: String(amount),
+        phone: phone.replace(/\s/g, ''),
+        annonceId: annonceId || '',
+        originalAmount: String(parsedAmount),
+        type: 'top_annonce',
       },
     };
 
-    // 🔐 Headers d'authentification PayDunya V1
-    const headers = {
+    // ── Headers d'authentification PayDunya V1 ──
+    const paydunyaHeaders = {
       'Content-Type': 'application/json',
       'PAYDUNYA-MASTER-KEY': PAYDUNYA_MASTER_KEY,
       'PAYDUNYA-PRIVATE-KEY': PAYDUNYA_PRIVATE_KEY,
       'PAYDUNYA-TOKEN': PAYDUNYA_TOKEN,
     };
 
-    // 🚀 Appel API PayDunya pour créer le checkout
+    console.log(`🚀 Création facture PayDunya — annonceId: ${annonceId} | method: ${method} | amount: ${parsedAmount}`);
+
+    // ── Appel API PayDunya ──
     const paydunyaResponse = await fetch(PAYDUNYA_ENDPOINT, {
       method: 'POST',
-      headers: headers,
+      headers: paydunyaHeaders,
       body: JSON.stringify(invoiceData),
     });
 
     const responseText = await paydunyaResponse.text();
-    console.log('PayDunya response status:', paydunyaResponse.status);
-    console.log('PayDunya response body:', responseText);
+    console.log('PayDunya status:', paydunyaResponse.status);
+    console.log('PayDunya body:', responseText);
 
     let checkoutData;
     try {
       checkoutData = JSON.parse(responseText);
     } catch (e) {
-      console.error('Erreur parsing réponse PayDunya:', responseText);
+      console.error('Parsing erreur PayDunya:', responseText);
       return {
         statusCode: 500,
         headers: CORS_HEADERS,
         body: JSON.stringify({
           error: 'Réponse invalide de PayDunya',
-          details: responseText.substring(0, 200),
+          details: responseText.substring(0, 300),
         }),
       };
     }
@@ -128,24 +147,27 @@ exports.handler = async (event) => {
       };
     }
 
-    // ✅ Retourner le lien de redirection
+    console.log(`✅ Facture créée — token: ${checkoutData.token}`);
+
+    // ── Retourner le lien de redirection ──
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
       body: JSON.stringify({
         success: true,
-        redirectUrl: checkoutData.response_text,
+        redirectUrl: checkoutData.response_text, // URL de paiement PayDunya
         checkoutToken: checkoutData.token,
-        message: 'Redirigé vers le paiement...',
+        message: 'Redirection vers le paiement…',
       }),
     };
+
   } catch (error) {
     console.error('Erreur initiate-payment:', error);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
       body: JSON.stringify({
-        error: 'Erreur serveur',
+        error: 'Erreur serveur inattendue',
         details: error.message,
       }),
     };

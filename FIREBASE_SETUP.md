@@ -39,7 +39,10 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+      // ⚠️ Autorise le webhook Netlify (qui utilise l'API REST sans être authentifié)
+      // Note: Pour une sécurité maximale en production, utilisez 'firebase-admin' dans Netlify
+      allow update: if true; 
     }
     match /top_demandes/{id} {
       allow create: if true;

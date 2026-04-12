@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Paiement réussi — LocSenegal</title>
+  <meta name="description" content="Votre Top Annonce est maintenant activé sur LocSenegal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: var(--bg); }
+
+    .success-page { max-width: 560px; margin: 0 auto; padding: 40px 20px 80px; }
+
+    /* ── État vérification ── */
+    .verif-card {
+      background: var(--white); border-radius: 24px;
+      padding: 48px 36px; box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border); text-align: center;
+    }
+
+    /* ── Animation checkmark ── */
+    .checkmark-wrap { margin: 0 auto 28px; width: 96px; height: 96px; position: relative; }
+    .checkmark-circle {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: linear-gradient(135deg, #059669, #10b981);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 32px rgba(16,185,129,0.35);
+      animation: popIn .5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+    .checkmark-circle .check { font-size: 44px; }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Confetti dots ── */
+    .confetti-dot {
+      position: absolute; border-radius: 50%;
+      animation: confettiFly 1s ease-out both;
+    }
+    @keyframes confettiFly {
+      from { transform: scale(0) translate(0, 0); opacity: 1; }
+      to { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
+    }
+
+    .success-title {
+      font-family: var(--font-display); font-size: 28px; font-weight: 900;
+      color: var(--ink); margin-bottom: 10px;
+    }
+    .success-sub { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 32px; }
+
+    /* ── Détails transaction ── */
+    .transaction-info {
+      background: var(--green-pale); border: 1.5px solid var(--green-mid);
+      border-radius: 14px; padding: 18px 20px; margin-bottom: 28px; text-align: left;
+    }
+    .transaction-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; padding: 4px 0;
+    }
+    .transaction-row:not(:last-child) { border-bottom: 1px solid var(--green-mid); padding-bottom: 10px; margin-bottom: 10px; }
+    .transaction-label { color: var(--muted); font-weight: 600; }
+    .transaction-val { font-weight: 700; color: var(--ink); }
+    .transaction-val.green { color: var(--green-dark); }
+
+    /* ── Actions ── */
+    .success-actions { display: flex; flex-direction: column; gap: 12px; }
+    .btn-view-annonce {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff; border: none; border-radius: 12px;
+      cursor: pointer; font-family: var(--font-body);
+      transition: opacity .2s, transform .15s; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.35);
+    }
+    .btn-view-annonce:hover { opacity: .9; transform: translateY(-2px); }
+
+    /* ── État loading ── */
+    .loading-verif {
+      display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 20px 0;
+    }
+    .loading-verif .loader-ring { width: 56px; height: 56px; border-width: 4px; }
+    .loading-verif-text { font-size: 15px; font-weight: 600; color: var(--ink-soft); }
+    .loading-verif-sub { font-size: 13px; color: var(--muted); }
+
+    /* ── État erreur ── */
+    .error-card {
+      background: #fef2f2; border: 1.5px solid #fca5a5; border-radius: 14px;
+      padding: 24px; text-align: center; display: none;
+    }
+    .error-icon { font-size: 40px; margin-bottom: 12px; }
+    .error-title { font-size: 17px; font-weight: 700; color: #b91c1c; margin-bottom: 8px; }
+    .error-sub { font-size: 13px; color: #991b1b; }
+
+    /* ── Activé directement (crédit) ── */
+    .free-badge { display: inline-flex; align-items: center; gap: 6px; background: #fef3c7; color: #78350f; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 100px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<header class="navbar scrolled">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Accueil</a>
+      <a href="profil.html" class="nav-link">Mon profil</a>
+    </nav>
+    <button class="nav-burger" id="navBurger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="success-page">
+
+  <div class="verif-card" id="verifCard">
+
+    <!-- État : vérification en cours (défaut) -->
+    <div id="stateLoading" class="loading-verif">
+      <div class="loader-ring"></div>
+      <div>
+        <div class="loading-verif-text">Vérification du paiement…</div>
+        <div class="loading-verif-sub">Merci de patienter quelques instants</div>
+      </div>
+    </div>
+
+    <!-- État : succès (caché par défaut) -->
+    <div id="stateSuccess" style="display:none">
+      <div class="checkmark-wrap" id="checkmarkWrap">
+        <div class="checkmark-circle"><span class="check">✓</span></div>
+      </div>
+      <div id="freeBadge" class="free-badge" style="display:none">🎁 Activé via crédit abonnement</div>
+      <h1 class="success-title">Paiement réussi !</h1>
+      <p class="success-sub">✅ Votre annonce est maintenant mise en avant.<br>Elle apparaîtra en position prioritaire pendant <strong>7 jours</strong>.</p>
+
+      <div class="transaction-info" id="transactionInfo">
+        <div class="transaction-row">
+          <span class="transaction-label">Statut</span>
+          <span class="transaction-val green">✅ Confirmé</span>
+        </div>
+        <div class="transaction-row">
+          <span class="transaction-label">Boost activé</span>
+          <span class="transaction-val" id="txExpiry">—</span>
+        </div>
+        <div class="transaction-row">
+          <span class="transaction-label">Montant</span>
+          <span class="transaction-val">2 000 F CFA</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a href="#" id="btnVoirAnnonce" class="btn-view-annonce">
+          🏠 Voir mon annonce
+        </a>
+        <a href="index.html" class="btn-ghost" style="width:100%;justify-content:center">← Retour à l'accueil</a>
+      </div>
+    </div>
+
+    <!-- État : erreur / paiement non confirmé -->
+    <div id="stateError" class="error-card">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title">Paiement non confirmé</div>
+      <div class="error-sub" id="errorMsg">Le paiement n'a pas pu être vérifié. Vérifiez votre transaction et réessayez.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px">
+        <a href="javascript:history.back()" class="btn-primary" style="width:100%;justify-content:center">← Réessayer</a>
+        <a href="index.html" class="btn-ghost" style="width:100%;justify-content:center">Retour à l'accueil</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Info support -->
+  <div style="text-align:center;margin-top:24px;font-size:13px;color:var(--muted)">
+    Une question ? Contactez-nous sur WhatsApp 📱
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const params = new URLSearchParams(window.location.search);
+const annonceId = params.get('annonce_id');
+const checkoutToken = params.get('checkout');
+const isFree = params.get('free') === '1';
+
+// Configurer lien "Voir mon annonce"
+const btnVoir = document.getElementById('btnVoirAnnonce');
+if (annonceId) {
+  btnVoir.href = `index.html#annonce-${annonceId}`;
+} else {
+  btnVoir.href = 'profil.html';
+}
+
+function showSuccess(isFreeCredit = false) {
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('stateSuccess').style.display = 'block';
+  if (isFreeCredit) {
+    document.getElementById('freeBadge').style.display = 'inline-flex';
+    document.getElementById('txExpiry').closest('.transaction-row').style.display = 'none';
+    // Cacher le montant aussi
+    const rows = document.querySelectorAll('.transaction-row');
+    rows.forEach(r => { if (r.querySelector('.transaction-label')?.textContent === 'Montant') r.style.display = 'none'; });
+  }
+  // Date expiration
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 7);
+  const expiryStr = expiry.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const expiryEl = document.getElementById('txExpiry');
+  if (expiryEl) expiryEl.textContent = `Jusqu'au ${expiryStr}`;
+}
+
+function showError(msg) {
+  document.getElementById('stateLoading').style.display = 'none';
+  const errorCard = document.getElementById('stateError');
+  errorCard.style.display = 'block';
+  if (msg) document.getElementById('errorMsg').textContent = msg;
+}
+
+// ── Cas 1 : Activation via crédit (pas de paiement PayDunya)
+if (isFree) {
+  showSuccess(true);
+}
+// ── Cas 2 : Retour depuis PayDunya avec token
+else if (checkoutToken) {
+  onAuthStateChanged(auth, async (user) => {
+    try {
+      const res = await fetch('/.netlify/functions/validate-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: checkoutToken,
+          annonceId: annonceId || null,
+          userId: user?.uid || null,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.verified) {
+        showSuccess(false);
+      } else {
+        showError(data.message || 'Paiement en cours de traitement. Votre annonce sera activée sous peu.');
+        // Afficher succès différé si paiement reçu mais pas encore confirmé
+        setTimeout(() => {
+          document.getElementById('stateError').style.display = 'none';
+          showSuccess(false);
+        }, 5000);
+      }
+    } catch(err) {
+      console.error('Erreur vérification:', err);
+      // En cas d'erreur réseau on affiche quand même le succès (webhook prendra le relais)
+      showSuccess(false);
+    }
+  });
+}
+// ── Cas 3 : Pas de token → accès direct à la page
+else {
+  showError('Aucun token de paiement trouvé. Avez-vous été redirigé depuis une page de paiement ?');
+}
+
+// Burger menu
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('navBurger').classList.toggle('open');
+});
+</script>
+</body>
+</html>

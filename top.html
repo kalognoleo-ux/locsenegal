@@ -4,11 +4,125 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Top Annonce — LocSenegal</title>
+  <meta name="description" content="Boostez votre annonce avec le Top Annonce LocSenegal. Paiement via Wave ou Orange Money.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .top-section { max-width: 680px; margin: 48px auto; padding: 0 20px 80px; }
+
+    /* ── Hero badge annonce ── */
+    .annonce-preview {
+      background: linear-gradient(135deg, #065f46, #10b981);
+      border-radius: 16px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 28px; color: #fff;
+    }
+    .annonce-preview-icon { font-size: 32px; flex-shrink: 0; }
+    .annonce-preview-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .7; margin-bottom: 4px; }
+    .annonce-preview-title { font-size: 16px; font-weight: 700; line-height: 1.3; }
+    .annonce-preview-id { font-size: 12px; opacity: .55; margin-top: 2px; font-family: monospace; }
+
+    /* ── Prix card ── */
+    .prix-card {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-radius: 16px; padding: 28px 24px; margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .prix-amount {
+      font-family: var(--font-display); font-size: 52px; font-weight: 900;
+      color: #78350f; line-height: 1;
+    }
+    .prix-amount span { font-size: 20px; font-family: var(--font-body); color: #92400e; font-weight: 600; }
+    .prix-detail { display: flex; flex-direction: column; gap: 4px; }
+    .prix-badge { background: #92400e; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 100px; letter-spacing: .5px; display: inline-block; margin-bottom: 6px; }
+    .prix-duration { color: #92400e; font-size: 13px; font-weight: 600; }
+
+    /* ── Avantages ── */
+    .perks { background: var(--white); border-radius: 14px; padding: 20px 24px; border: 1.5px solid var(--green-mid); margin-bottom: 28px; }
+    .perks-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green-dark); margin-bottom: 14px; }
+    .perks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .perk { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+    .perk-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* ── Formulaire paiement ── */
+    .pay-form-card {
+      background: var(--white); border-radius: 20px;
+      padding: 32px; box-shadow: var(--shadow);
+      border: 1px solid var(--border); margin-bottom: 20px;
+    }
+    .pay-form-title { font-size: 19px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .pay-form-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── Méthode de paiement cards ── */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .method-card {
+      border: 2px solid var(--border); border-radius: 12px; padding: 14px 12px;
+      cursor: pointer; transition: all .18s; position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      background: var(--white);
+    }
+    .method-card:hover { border-color: var(--green); background: var(--green-pale); }
+    .method-card.selected { border-color: var(--green); background: var(--green-pale); box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+    .method-card input[type="radio"] { position: absolute; opacity: 0; }
+    .method-logo { font-size: 28px; }
+    .method-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .method-sub { font-size: 11px; color: var(--muted); }
+    .method-card.selected .method-name { color: var(--green-dark); }
+    .method-check {
+      position: absolute; top: 8px; right: 8px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      font-size: 10px; display: none;
+      align-items: center; justify-content: center;
+      font-weight: 900;
+    }
+    .method-card.selected .method-check { display: flex; }
+
+    /* ── Bouton payer ── */
+    .btn-pay {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff; border: none; border-radius: 12px;
+      cursor: pointer; font-family: var(--font-body);
+      transition: opacity .2s, transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.35);
+      margin-top: 8px;
+    }
+    .btn-pay:hover { opacity: .92; transform: translateY(-2px); }
+    .btn-pay:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    /* ── Loader dans bouton ── */
+    .btn-loader { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; animation: spin .6s linear infinite; }
+
+    /* ── Messages ── */
+    .msg-error { background: #fef2f2; border: 1.5px solid #fca5a5; border-radius: 10px; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #b91c1c; display: none; margin-bottom: 16px; }
+    .msg-redirect { background: #ecfdf5; border: 1.5px solid #6ee7b7; border-radius: 10px; padding: 14px 16px; font-size: 14px; font-weight: 600; color: #065f46; display: none; margin-bottom: 16px; }
+
+    /* ── Steps ── */
+    .steps-mini { display: flex; gap: 0; margin-bottom: 28px; }
+    .step-mini { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+    .step-mini:not(:last-child)::after { content: ''; position: absolute; top: 14px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+    .step-mini-num { width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
+    .step-mini-label { font-size: 11px; color: var(--muted); font-weight: 600; text-align: center; line-height: 1.3; }
+
+    /* ── Sécurité badge ── */
+    .security-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 16px; }
+
+    /* ── Skeleton loading ── */
+    .skeleton { background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    @media (max-width: 500px) {
+      .perks-grid { grid-template-columns: 1fr; }
+      .prix-amount { font-size: 40px; }
+    }
+  </style>
 </head>
 <body>
+
 <header class="navbar scrolled" id="navbar">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><span class="logo-icon">🏠</span><span class="logo-text">Loc<strong>Senegal</strong></span></a>
@@ -23,101 +137,137 @@
 
 <div class="top-section">
 
-  <!-- Hero Top -->
-  <div style="text-align:center;padding:40px 0 32px">
-    <div style="font-size:56px;margin-bottom:16px">⭐</div>
-    <h1 class="form-title" style="font-size:32px">Top Annonce</h1>
-    <p class="form-sub">Démarquez-vous et trouvez un locataire 3x plus vite</p>
+  <!-- Hero -->
+  <div style="text-align:center;padding:32px 0 24px">
+    <div style="font-size:52px;margin-bottom:12px">⭐</div>
+    <h1 class="form-title" style="font-size:30px;margin-bottom:8px">Activer le Top Annonce</h1>
+    <p class="form-sub" style="margin-bottom:0">Démarquez-vous et trouvez un locataire 3× plus vite</p>
   </div>
 
-  <!-- Card prix -->
-  <div class="top-card">
-    <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:24px;margin-bottom:24px">
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#92400e;margin-bottom:8px">TOP ANNONCE</div>
-      <div class="top-price">2 000 <span style="font-size:20px;color:var(--muted);font-family:var(--font-body)">F CFA</span></div>
-      <div style="color:#92400e;font-size:14px;margin-top:8px">⏱ 7 jours de visibilité maximale</div>
+  <!-- Étapes mini -->
+  <div class="steps-mini">
+    <div class="step-mini">
+      <div class="step-mini-num">1</div>
+      <div class="step-mini-label">Votre numéro</div>
     </div>
-    <div class="pay-card-perks">
-      <div>✅ Position prioritaire en haut des résultats</div>
-      <div>✅ Badge ⭐ doré visible sur votre annonce</div>
-      <div>✅ 3× plus de contacts en moyenne</div>
-      <div>✅ Apparaît en premier sur la carte</div>
+    <div class="step-mini">
+      <div class="step-mini-num">2</div>
+      <div class="step-mini-label">Paiement Wave / OM</div>
     </div>
-  </div>
-
-  <!-- Étapes paiement (NOUVEAU FLUX) -->
-  <div style="margin-bottom:32px">
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">Comment ça fonctionne ?</h2>
-
-    <div class="top-steps">
-      <div class="top-step">
-        <div class="top-step-num">1</div>
-        <div>
-          <strong>Entrez votre numéro et montant</strong>
-          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Vous serez redirigé vers Wave ou Orange Money pour finaliser le paiement</p>
-        </div>
-      </div>
-      <div class="top-step">
-        <div class="top-step-num">2</div>
-        <div>
-          <strong>Finalisez le paiement</strong>
-          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Confirmez la transaction dans votre app Wave ou Orange Money</p>
-        </div>
-      </div>
-      <div class="top-step">
-        <div class="top-step-num">3</div>
-        <div>
-          <strong>Top Annonce activé automatiquement ✅</strong>
-          <p style="margin-top:4px;font-size:14px;color:var(--muted)">Votre annonce sera boostée immédiatement après la confirmation</p>
-        </div>
-      </div>
+    <div class="step-mini">
+      <div class="step-mini-num">3</div>
+      <div class="step-mini-label">Annonce boostée ✅</div>
     </div>
   </div>
 
-  <!-- Formulaire paiement (NOUVEAU) -->
-  <div class="form-card">
-    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">💳 Activer Top Annonce</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:24px" id="topSubtitle">Paiement sécurisé via Wave, Orange Money ou Carte</p>
+  <!-- Annonce preview -->
+  <div class="annonce-preview" id="annoncePreview" style="display:none">
+    <div class="annonce-preview-icon">🏠</div>
+    <div>
+      <div class="annonce-preview-label">Annonce sélectionnée</div>
+      <div class="annonce-preview-title" id="annonceTitre">Chargement…</div>
+      <div class="annonce-preview-id" id="annonceIdDisplay"></div>
+    </div>
+  </div>
+
+  <!-- Skeleton annonce (pendant chargement) -->
+  <div id="annonceSkeleton" style="margin-bottom:28px">
+    <div class="skeleton" style="height:80px;border-radius:16px"></div>
+  </div>
+
+  <!-- Card Prix -->
+  <div class="prix-card">
+    <div>
+      <div class="prix-badge">TOP ANNONCE</div>
+      <div class="prix-amount">2 000 <span>F CFA</span></div>
+    </div>
+    <div class="prix-detail">
+      <div class="prix-duration">⏱ 7 jours de visibilité maximale</div>
+      <div style="font-size:12px;color:#92400e;margin-top:4px">Paiement unique · Activation immédiate</div>
+    </div>
+  </div>
+
+  <!-- Avantages -->
+  <div class="perks">
+    <div class="perks-title">✨ Ce que vous obtenez</div>
+    <div class="perks-grid">
+      <div class="perk"><span class="perk-icon">🏆</span>Position prioritaire</div>
+      <div class="perk"><span class="perk-icon">⭐</span>Badge doré visible</div>
+      <div class="perk"><span class="perk-icon">📞</span>3× plus de contacts</div>
+      <div class="perk"><span class="perk-icon">🗺️</span>1ère place sur la carte</div>
+    </div>
+  </div>
+
+  <!-- Formulaire Paiement -->
+  <div class="pay-form-card">
+    <div class="pay-form-title">💳 Payer maintenant</div>
+    <div class="pay-form-sub">Paiement sécurisé — Redirection vers Wave ou Orange Money</div>
+
+    <div id="msgError" class="msg-error"></div>
+    <div id="msgRedirect" class="msg-redirect"></div>
 
     <form id="topForm">
+      <!-- Numéro de téléphone -->
       <div class="field">
-        <label>Votre numéro de téléphone</label>
-        <input type="tel" id="topPhone" placeholder="77 435 1695" required>
+        <label for="topPhone">Numéro de téléphone Mobile Money</label>
+        <input type="tel" id="topPhone" placeholder="77 435 1695" required autocomplete="tel"
+          style="font-size:18px;font-weight:700;letter-spacing:1px">
       </div>
+
+      <!-- Moyens de paiement -->
       <div class="field">
-        <label>Montant à payer (F CFA)</label>
-        <input type="number" id="topAmount" placeholder="2000" value="2000" min="500" step="100" required>
-        <small style="margin-top:6px;color:var(--muted)">Montant minimum: 500 FCFA</small>
+        <label>Moyen de paiement</label>
+        <div class="method-grid">
+          <label class="method-card" id="cardWave" for="methodWave">
+            <input type="radio" name="method" id="methodWave" value="wave" required>
+            <div class="method-check">✓</div>
+            <div class="method-logo">〰️</div>
+            <div class="method-name">Wave</div>
+            <div class="method-sub">Paiement instantané</div>
+          </label>
+          <label class="method-card" id="cardOrange" for="methodOrange">
+            <input type="radio" name="method" id="methodOrange" value="orange" required>
+            <div class="method-check">✓</div>
+            <div class="method-logo">🟠</div>
+            <div class="method-name">Orange Money</div>
+            <div class="method-sub">Paiement mobile</div>
+          </label>
+        </div>
       </div>
-      <div class="field">
-        <label>Moyen de paiement préféré</label>
-        <select id="topMethod" required>
-          <option value="">Sélectionner un moyen</option>
-          <option value="wave">〰️ Wave</option>
-          <option value="orange">🟠 Orange Money</option>
-          <option value="free">💳 Free Money / Carte</option>
-        </select>
+
+      <!-- Résumé commande -->
+      <div style="background:var(--bg);border-radius:12px;padding:16px;margin-bottom:20px;border:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:6px">
+          <span>Top Annonce — 7 jours</span>
+          <span>2 000 F CFA</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--ink);padding-top:8px;border-top:1px solid var(--border)">
+          <span>Total</span>
+          <span style="color:var(--green-dark)">2 000 F CFA</span>
+        </div>
       </div>
-      <div id="topError" class="form-error" style="display:none"></div>
-      <div id="topSuccess" style="display:none;background:#ecfdf5;border:1.5px solid #10b981;border-radius:8px;padding:14px;margin-bottom:16px;font-weight:600;color:#065f46"></div>
-      <button type="submit" class="btn-primary form-submit" id="topBtn">🔗 Continuer vers le paiement</button>
+
+      <button type="submit" class="btn-pay" id="topBtn">
+        <span id="btnText">🔒 Payer maintenant — 2 000 F CFA</span>
+      </button>
     </form>
+
+    <div class="security-badge">
+      🔐 Paiement sécurisé par PayDunya · SSL 256-bit
+    </div>
   </div>
 
-  <div style="text-align:center;margin-top:24px">
+  <div style="text-align:center;margin-top:8px">
     <a href="index.html" class="btn-ghost">← Retour aux annonces</a>
   </div>
+
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
 
-<style>
-.form-submit { justify-content: center; }
-</style>
-
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -132,68 +282,114 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-document.getElementById('topForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('topBtn');
-  btn.textContent = 'Redirection vers le paiement…'; 
-  btn.disabled = true;
-  document.getElementById('topError').style.display = 'none';
+// ── Récupérer annonce_id depuis l'URL ──
+const params = new URLSearchParams(window.location.search);
+const annonceId = params.get('annonce_id');
 
-  const phone = document.getElementById('topPhone').value.trim();
-  const amount = parseInt(document.getElementById('topAmount').value) || 2000;
-  const method = document.getElementById('topMethod').value;
+// ── Afficher la preview de l'annonce ──
+async function loadAnnoncePreview() {
+  const skeleton = document.getElementById('annonceSkeleton');
+  const preview = document.getElementById('annoncePreview');
 
-  // ✅ Validation
-  if (!phone || phone.length < 6) {
-    document.getElementById('topError').textContent = 'Numéro de téléphone invalide.';
-    document.getElementById('topError').style.display = 'block';
-    btn.textContent = '🔗 Continuer vers le paiement'; 
-    btn.disabled = false;
-    return;
-  }
-
-  if (amount < 500) {
-    document.getElementById('topError').textContent = 'Montant minimum: 500 FCFA';
-    document.getElementById('topError').style.display = 'block';
-    btn.textContent = '🔗 Continuer vers le paiement'; 
-    btn.disabled = false;
+  if (!annonceId) {
+    skeleton.style.display = 'none';
+    // Pas d'annonce_id → on continue sans preview
     return;
   }
 
   try {
-    // 🌟 Vérification des crédits d'abonnement
+    const annonceRef = doc(db, 'annonces', annonceId);
+    const snap = await getDoc(annonceRef);
+    skeleton.style.display = 'none';
+    preview.style.display = 'flex';
+
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById('annonceTitre').textContent = data.titre || data.title || 'Votre annonce';
+      document.getElementById('annonceIdDisplay').textContent = `ID: ${annonceId}`;
+    } else {
+      document.getElementById('annonceTitre').textContent = 'Annonce introuvable';
+      document.getElementById('annonceIdDisplay').textContent = `ID: ${annonceId}`;
+    }
+  } catch (e) {
+    skeleton.style.display = 'none';
+    preview.style.display = 'flex';
+    document.getElementById('annonceTitre').textContent = 'Votre annonce';
+    document.getElementById('annonceIdDisplay').textContent = annonceId ? `ID: ${annonceId}` : '';
+  }
+}
+
+loadAnnoncePreview();
+
+// ── Cards méthode de paiement ──
+document.querySelectorAll('input[name="method"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+    radio.closest('.method-card').classList.add('selected');
+  });
+});
+
+// ── Soumission ──
+document.getElementById('topForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('topBtn');
+  const btnText = document.getElementById('btnText');
+  const errEl = document.getElementById('msgError');
+  const redirEl = document.getElementById('msgRedirect');
+
+  errEl.style.display = 'none';
+  redirEl.style.display = 'none';
+
+  const phone = document.getElementById('topPhone').value.trim().replace(/\s/g, '');
+  const method = document.querySelector('input[name="method"]:checked')?.value;
+  const amount = 2000;
+
+  // Validation
+  if (!phone || phone.length < 8) {
+    errEl.textContent = '⚠️ Numéro de téléphone invalide (minimum 8 chiffres).';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!method) {
+    errEl.textContent = '⚠️ Veuillez sélectionner un moyen de paiement.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // État loading
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="btn-loader"></span> Création de la facture…';
+
+  // ✅ Vérification crédits abonnement
+  try {
     if (auth.currentUser) {
       const userDocRef = doc(db, 'users', auth.currentUser.uid);
       const userDoc = await getDoc(userDocRef);
       const credits = userDoc.exists() ? (userDoc.data().topAnnoncesCredits || 0) : 0;
-      
+
       if (credits > 0) {
-        // Déduire le crédit
         await updateDoc(userDocRef, { topAnnoncesCredits: credits - 1 });
-        
-        // Créer la demande top validée directement
-        await addDoc(collection(db, 'top_demandes'), {
-          status: 'confirmed',
-          method: 'credit_abonnement',
-          phone: phone,
-          userId: auth.currentUser.uid,
-          amount: 0,
-          createdAt: serverTimestamp(),
-          paidAt: serverTimestamp(),
-          autoActivated: true
-        });
-        
-        document.getElementById('topSuccess').innerHTML = `
-          🎉 <strong>Top Annonce activé gratuitement !</strong><br>
-          <small style="color:var(--muted);display:block;margin-top:4px">1 crédit déduit de votre abonnement.</small>
-        `;
-        document.getElementById('topSuccess').style.display = 'block';
-        setTimeout(() => window.location.href = 'profil.html', 2500);
-        return; // Arrêt ici, pas de PayDunya
+        // Activer directement l'annonce si crédit dispo
+        if (annonceId) {
+          const expiry = new Date();
+          expiry.setDate(expiry.getDate() + 7);
+          const annonceRef = doc(db, 'annonces', annonceId);
+          await updateDoc(annonceRef, {
+            top_annonce: true,
+            top_annonce_expire: expiry.toISOString()
+          });
+        }
+        redirEl.innerHTML = `🎉 <strong>Top Annonce activé gratuitement !</strong><br><small style="color:var(--muted)">1 crédit déduit. Redirection vers votre annonce…</small>`;
+        redirEl.style.display = 'block';
+        const dest = annonceId ? `success.html?annonce_id=${annonceId}&free=1` : 'profil.html';
+        setTimeout(() => window.location.href = dest, 2200);
+        return;
       }
     }
+  } catch(e) { /* Continue vers paiement */ }
 
-    // 🚀 Appel à la fonction initiate-payment (PayDunya)
+  // 🚀 Appel Netlify Function
+  try {
     const response = await fetch('/.netlify/functions/initiate-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -202,111 +398,45 @@ document.getElementById('topForm').addEventListener('submit', async (e) => {
         amount,
         method,
         userId: auth.currentUser?.uid || null,
+        annonceId: annonceId || null,
       }),
     });
 
     const result = await response.json();
 
-    if (!response.ok) {
-      document.getElementById('topError').textContent = result.error || 'Erreur lors de l\'initialisation du paiement.';
-      document.getElementById('topError').style.display = 'block';
-      btn.textContent = '🔗 Continuer vers le paiement'; 
+    if (!response.ok || !result.redirectUrl) {
+      errEl.textContent = result.error || 'Erreur lors de la création du paiement. Réessayez.';
+      errEl.style.display = 'block';
       btn.disabled = false;
+      btnText.textContent = '🔒 Payer maintenant — 2 000 F CFA';
       return;
     }
 
     // ✅ Redirection vers PayDunya
-    if (result.redirectUrl) {
-      document.getElementById('topSuccess').innerHTML = `
-        ✅ Redirection en cours...<br>
-        <small style="color: var(--muted); margin-top: 8px; display: block;">
-          Vous serez redirigé vers la plateforme de paiement sécurisée.
-        </small>
-      `;
-      document.getElementById('topSuccess').style.display = 'block';
-      
-      // Redirection après 1.5s pour que l'utilisateur voit le message
-      setTimeout(() => {
-        window.location.href = result.redirectUrl;
-      }, 1500);
-    } else {
-      throw new Error('Pas de lien de paiement reçu');
-    }
+    redirEl.innerHTML = `
+      ✅ <strong>Redirection en cours…</strong><br>
+      <small style="color:var(--muted)">Vous allez être redirigé vers ${method === 'wave' ? 'Wave' : 'Orange Money'} pour confirmer le paiement.</small>
+    `;
+    redirEl.style.display = 'block';
+
+    setTimeout(() => {
+      window.location.href = result.redirectUrl;
+    }, 1200);
 
   } catch(err) {
     console.error('Erreur:', err);
-    document.getElementById('topError').textContent = 'Erreur réseau. Réessayez.';
-    document.getElementById('topError').style.display = 'block';
-    btn.textContent = '🔗 Continuer vers le paiement'; 
+    errEl.textContent = '⚠️ Erreur réseau. Vérifiez votre connexion et réessayez.';
+    errEl.style.display = 'block';
     btn.disabled = false;
+    btnText.textContent = '🔒 Payer maintenant — 2 000 F CFA';
   }
 });
 
+// ── Burger menu ──
 document.getElementById('navBurger').addEventListener('click', () => {
   document.getElementById('navLinks').classList.toggle('open');
   document.getElementById('navBurger').classList.toggle('open');
 });
-
-// ✅ Vérifier le statut du paiement après redirection de PayDunya
-const urlParams = new URLSearchParams(window.location.search);
-const paymentStatus = urlParams.get('status');
-const checkoutToken = urlParams.get('checkout');
-
-if (paymentStatus === 'success' && checkoutToken) {
-  const successEl = document.getElementById('topSuccess');
-  successEl.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="loader-small"></div>
-      <div>Vérification du paiement en cours...</div>
-    </div>
-  `;
-  successEl.style.display = 'block';
-  document.getElementById('topForm').style.display = 'none';
-  
-  // Appeler la fonction de validation
-  fetch('/.netlify/functions/validate-payment', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      token: checkoutToken,
-      userId: auth.currentUser?.uid || null
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success && data.verified) {
-      successEl.innerHTML = `
-        🎉 Paiement confirmé !<br>
-        <small style="color: var(--muted); margin-top: 8px; display: block;">
-          Votre Top Annonce est maintenant activé. Redirection vers votre profil...
-        </small>
-      `;
-      setTimeout(() => window.location.href = 'profil.html', 3000);
-    } else {
-      successEl.innerHTML = `
-        ℹ️ Paiement reçu, activation en cours...<br>
-        <small style="color: var(--muted); margin-top: 8px; display: block;">
-          Nous finalisons l'activation de votre annonce. Merci de patienter quelques instants.
-        </small>
-      `;
-      setTimeout(() => window.location.href = 'profil.html', 5000);
-    }
-  })
-  .catch(err => {
-    console.error('Erreur validation:', err);
-    successEl.innerHTML = `
-      ✅ Paiement reçu !<br>
-      <small style="color: var(--muted); margin-top: 8px; display: block;">
-        Votre annonce sera activée sous peu. Redirection...
-      </small>
-    `;
-    setTimeout(() => window.location.href = 'profil.html', 3000);
-  });
-} else if (paymentStatus === 'cancelled') {
-  document.getElementById('topError').textContent = 'Paiement annulé. Vous pouvez réessayer.';
-  document.getElementById('topError').style.display = 'block';
-}
-
 </script>
 </body>
 </html>
