@@ -21,6 +21,9 @@ exports.handler = async (event) => {
   }
 
   try {
+    if (!PAYDUNYA_MASTER_KEY) {
+      return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: "Clés PayDunya manquantes dans les paramètres Netlify" }) };
+    }
     const { userId, userEmail, planType, price } = JSON.parse(event.body || '{}');
 
     if (!userId || !planType || !price) {

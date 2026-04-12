@@ -36,7 +36,8 @@ service cloud.firestore {
     match /annonces/{id} {
       allow read: if true;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow update: if true; // ⚠️ Autorise le webhook Netlify (PayDunya) à activer l'annonce
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
     match /users/{userId} {
       allow read, create, delete: if request.auth != null && request.auth.uid == userId;
