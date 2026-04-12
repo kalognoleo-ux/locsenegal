@@ -1,8 +1,13 @@
 const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY;
 const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY;
 const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN;
+const PAYDUNYA_MODE = (process.env.PAYDUNYA_MODE || 'test').toLowerCase();
 
-const PAYDUNYA_ENDPOINT = 'https://app.paydunya.com/api/v1/checkout-invoice/create';
+const BASE_URL = PAYDUNYA_MODE === 'test' 
+  ? 'https://app.paydunya.com/sandbox-api/v1' 
+  : 'https://app.paydunya.com/api/v1';
+
+const PAYDUNYA_ENDPOINT = `${BASE_URL}/checkout-invoice/create`;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',

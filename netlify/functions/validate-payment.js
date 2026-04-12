@@ -115,7 +115,12 @@ exports.handler = async (event) => {
     console.log(`🔍 Vérification paiement PayDunya — token: ${token} | annonceId: ${annonceId}`);
 
     // ── Appel API PayDunya pour vérifier le statut ──
-    const confirmUrl = `https://app.paydunya.com/api/v1/checkout-invoice/confirm/${token}`;
+    const PAYDUNYA_MODE = (process.env.PAYDUNYA_MODE || 'test').toLowerCase();
+    const BASE_URL = PAYDUNYA_MODE === 'test' 
+      ? 'https://app.paydunya.com/sandbox-api/v1' 
+      : 'https://app.paydunya.com/api/v1';
+    
+    const confirmUrl = `${BASE_URL}/checkout-invoice/confirm/${token}`;
 
     const paydunyaResponse = await fetch(confirmUrl, {
       method: 'GET',
