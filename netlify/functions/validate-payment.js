@@ -6,9 +6,9 @@
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'locsenegal-c51f3';
 const API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU';
 
-const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY;
-const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY;
-const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN;
+const PAYDUNYA_MASTER_KEY = (process.env.PAYDUNYA_MASTER_KEY || '').trim();
+const PAYDUNYA_PRIVATE_KEY = (process.env.PAYDUNYA_PRIVATE_KEY || '').trim();
+const PAYDUNYA_TOKEN = (process.env.PAYDUNYA_TOKEN || '').trim();
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',

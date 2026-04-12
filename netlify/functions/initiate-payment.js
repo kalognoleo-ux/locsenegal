@@ -2,9 +2,9 @@
 // Accepte: phone, amount, method, userId, annonceId
 // Retourne: redirectUrl + checkoutToken
 
-const PAYDUNYA_MASTER_KEY = process.env.PAYDUNYA_MASTER_KEY;
-const PAYDUNYA_PRIVATE_KEY = process.env.PAYDUNYA_PRIVATE_KEY;
-const PAYDUNYA_TOKEN = process.env.PAYDUNYA_TOKEN;
+const PAYDUNYA_MASTER_KEY = (process.env.PAYDUNYA_MASTER_KEY || '').trim();
+const PAYDUNYA_PRIVATE_KEY = (process.env.PAYDUNYA_PRIVATE_KEY || '').trim();
+const PAYDUNYA_TOKEN = (process.env.PAYDUNYA_TOKEN || '').trim();
 const PAYDUNYA_MODE = (process.env.PAYDUNYA_MODE || 'test').toLowerCase();
 
 const BASE_URL = PAYDUNYA_MODE === 'test' 
