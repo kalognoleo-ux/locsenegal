@@ -320,10 +320,17 @@ async function loadListings() {
     const q = query(collection(db, 'annonces'), orderBy('createdAt', 'desc'), limit(50));
     const snap = await getDocs(q);
     allListings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    document.getElementById('statTotal').textContent = allListings.length + '+';
-    applyFilters();
+    
+    // Si Firebase retourne 0 annonces, charger les données de démo
+    if (allListings.length === 0) {
+      console.log('Collection Firebase vide, chargement des données démo');
+      loadDemoData();
+    } else {
+      document.getElementById('statTotal').textContent = allListings.length + '+';
+      applyFilters();
+    }
   } catch(e) {
-    console.warn('Firebase non configuré, données démo chargées');
+    console.warn('Firebase non configuré, données démo chargées', e);
     loadDemoData();
   }
   document.getElementById('loadingState').style.display = 'none';
