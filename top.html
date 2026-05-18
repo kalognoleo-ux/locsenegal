@@ -267,8 +267,20 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+async function authFetch(url, body) {
+  const user = auth.currentUser;
+  if (!user) throw new Error('CONNECT');
+  const token = await user.getIdToken();
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  return res;
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
@@ -360,53 +372,52 @@ document.getElementById('topForm').addEventListener('submit', async (e) => {
   btn.disabled = true;
   btnText.innerHTML = '<span class="btn-loader"></span> Création de la facture…';
 
-  // ✅ Vérification crédits abonnement
-  try {
-    if (auth.currentUser) {
-      const userDocRef = doc(db, 'users', auth.currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
-      const credits = userDoc.exists() ? (userDoc.data().topAnnoncesCredits || 0) : 0;
+  if (!auth.currentUser) {
+    window.location.href = 'connexion.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+    return;
+  }
+  if (!annonceId) {
+    errEl.textContent = '⚠️ Aucune annonce sélectionnée.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btnText.textContent = '🔒 Payer maintenant — 2 000 F CFA';
+    return;
+  }
 
-      if (credits > 0) {
-        await updateDoc(userDocRef, { topAnnoncesCredits: credits - 1 });
-        // Activer directement l'annonce si crédit dispo
-        if (annonceId) {
-          const expiry = new Date();
-          expiry.setDate(expiry.getDate() + 7);
-          const annonceRef = doc(db, 'annonces', annonceId);
-          await updateDoc(annonceRef, {
-            top_annonce: true,
-            top_annonce_expire: expiry.toISOString()
-          });
-        }
-        redirEl.innerHTML = `🎉 <strong>Top Annonce activé gratuitement !</strong><br><small style="color:var(--muted)">1 crédit déduit. Redirection vers votre annonce…</small>`;
-        redirEl.style.display = 'block';
-        const dest = annonceId ? `success.html?annonce_id=${annonceId}&free=1` : 'profil.html';
-        setTimeout(() => window.location.href = dest, 2200);
-        return;
-      }
+  // Crédit abonnement — activation côté serveur uniquement
+  try {
+    const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+    const credits = userDoc.exists() ? (userDoc.data().topAnnoncesCredits || 0) : 0;
+
+    if (credits > 0) {
+      const creditRes = await authFetch('/.netlify/functions/activate-top-credit', { annonceId });
+      const creditData = await creditRes.json();
+      if (!creditRes.ok) throw new Error(creditData.error || 'Erreur activation crédit');
+
+      redirEl.innerHTML = `🎉 <strong>Top Annonce activé gratuitement !</strong><br><small style="color:var(--muted)">1 crédit déduit. Redirection…</small>`;
+      redirEl.style.display = 'block';
+      setTimeout(() => window.location.href = `success.html?annonce_id=${encodeURIComponent(annonceId)}&free=1`, 2200);
+      return;
     }
-  } catch(e) { /* Continue vers paiement */ }
+  } catch (e) {
+    if (e.message === 'CONNECT') {
+      window.location.href = 'connexion.html';
+      return;
+    }
+    /* pas de crédit → paiement PayDunya */
+  }
 
-  // 🚀 Appel Netlify Function
   try {
-    const response = await fetch('/.netlify/functions/initiate-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phone,
-        amount,
-        method,
-        userId: auth.currentUser?.uid || null,
-        annonceId: annonceId || null,
-      }),
+    const response = await authFetch('/.netlify/functions/initiate-payment', {
+      phone,
+      method,
+      annonceId,
     });
 
     const result = await response.json();
 
     if (!response.ok || !result.redirectUrl) {
-      let msg = result.error || 'Erreur lors de la création du paiement.';
-      if (result.debug_info) msg += ' | Debug: ' + JSON.stringify(result.debug_info);
+      const msg = result.error || 'Erreur lors de la création du paiement.';
       errEl.textContent = msg;
       errEl.style.display = 'block';
       btn.disabled = false;

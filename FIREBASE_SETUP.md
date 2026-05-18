@@ -28,31 +28,13 @@
 2. Choisissez **"Start in test mode"** (pour commencer)
 3. Région : **eur3** (Europe)
 
-### Règles Firestore (collez ces règles) :
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /annonces/{id} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if true; // ⚠️ Autorise le webhook Netlify (PayDunya) à activer l'annonce
-      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
-    }
-    match /users/{userId} {
-      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
-      // ⚠️ Autorise le webhook Netlify (qui utilise l'API REST sans être authentifié)
-      // Note: Pour une sécurité maximale en production, utilisez 'firebase-admin' dans Netlify
-      allow update: if true; 
-    }
-    match /top_demandes/{id} {
-      allow create: if true;
-      allow read: if request.auth != null;
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-  }
-}
-```
+### Règles Firestore (sécurisées)
+
+Copiez le fichier **`firestore.rules`** à la racine du projet dans la console Firebase → Firestore → Règles → Publier.
+
+Les paiements et activations Top passent par les **fonctions Netlify** (Firebase Admin SDK), pas par le client.
+
+Configuration complète : **`SECURITY_SETUP.md`**
 
 ---
 

@@ -69,8 +69,23 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, query, where, onSnapshot, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function adminFetch(url, body) {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Non connecté');
+  const token = await user.getIdToken();
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
@@ -88,14 +103,16 @@ window.logout = () => {
   signOut(auth).then(() => window.location.href = 'index.html');
 };
 
-// Redirection si pas (admin) connecté - À adapter selon votre système
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = 'connexion.html';
     return;
   }
-  
-  // Charger les demandes
+  const tokenResult = await user.getIdTokenResult();
+  if (!tokenResult.claims.admin) {
+    window.location.href = 'index.html';
+    return;
+  }
   loadPayments();
 });
 
@@ -121,12 +138,12 @@ function loadPayments() {
     list.innerHTML = payments.map(p => `
       <div class="payment-item">
         <div class="payment-info">
-          <h3>${p.phone}</h3>
-          <p>📱 Code: <strong>${p.code}</strong></p>
+          <h3>${escapeHtml(p.phone)}</h3>
+          <p>📱 Annonce: <strong>${escapeHtml(p.annonceId)}</strong></p>
           <p>🕐 ${new Date(p.createdAt?.toDate?.() || p.createdAt).toLocaleString('fr-FR')}</p>
         </div>
         <div style="text-align: center;">
-          <div class="badge pending">${methodLabels[p.method] || p.method}</div>
+          <div class="badge pending">${escapeHtml(methodLabels[p.method] || p.method)}</div>
         </div>
         <div style="text-align: center;">
           <div class="badge pending">⏳ En attente</div>
@@ -142,11 +159,13 @@ function loadPayments() {
 
 window.confirmPayment = async (paymentId) => {
   try {
-    await updateDoc(doc(db, 'top_demandes', paymentId), {
-      status: 'confirmed',
-      updatedAt: new Date(),
+    const res = await adminFetch('/.netlify/functions/admin-payment-action', {
+      paymentId,
+      action: 'confirm',
     });
-    showAlert('✅ Paiement confirmé - Top Annonce activé !');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    showAlert('✅ Paiement confirmé — Top Annonce activé !');
   } catch (error) {
     showAlert('❌ Erreur: ' + error.message);
   }
@@ -155,11 +174,12 @@ window.confirmPayment = async (paymentId) => {
 window.rejectPayment = async (paymentId) => {
   if (!confirm('Êtes-vous sûr de vouloir rejeter cette demande ?')) return;
   try {
-    await updateDoc(doc(db, 'top_demandes', paymentId), {
-      status: 'rejected',
-      updatedAt: new Date(),
-      rejectionReason: 'Code invalide ou paiement non reçu',
+    const res = await adminFetch('/.netlify/functions/admin-payment-action', {
+      paymentId,
+      action: 'reject',
     });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
     showAlert('❌ Demande rejetée');
   } catch (error) {
     showAlert('❌ Erreur: ' + error.message);

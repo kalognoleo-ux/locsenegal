@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Configuration admin — LocSenegal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="max-width:480px;margin:80px auto;padding:24px">
+  <h1>Configuration administrateur</h1>
+  <p style="color:var(--muted);font-size:14px">Usage unique : attribue le rôle admin à votre compte connecté.</p>
+  <form id="setupForm" style="margin-top:24px">
+    <label style="font-weight:600;font-size:14px">Secret de configuration (ADMIN_SETUP_SECRET)</label>
+    <input type="password" id="setupSecret" required style="width:100%;margin:8px 0 16px;padding:12px;border:1px solid var(--border);border-radius:8px">
+    <button type="submit" class="btn-primary" style="width:100%">Activer mon compte admin</button>
+  </form>
+  <p id="msg" style="margin-top:16px;font-size:14px"></p>
+  <p style="margin-top:24px"><a href="index.html">← Retour</a></p>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8lP2C_4KP_djeKCCXp9vaL22Q6RhJGGU",
+  authDomain: "locsenegal-c51f3.firebaseapp.com",
+  projectId: "locsenegal-c51f3",
+  storageBucket: "locsenegal-c51f3.firebasestorage.app",
+  messagingSenderId: "373041547451",
+  appId: "1:373041547451:web:75bab15266ceb97d87019e"
+};
+initializeApp(firebaseConfig);
+const auth = getAuth();
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) window.location.href = 'connexion.html?redirect=setup-admin.html';
+});
+
+document.getElementById('setupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  msg.textContent = 'Traitement…';
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const res = await fetch('/.netlify/functions/grant-admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ setupSecret: document.getElementById('setupSecret').value }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    msg.style.color = '#15803d';
+    msg.textContent = data.message + ' Allez sur admin.html après reconnexion.';
+  } catch (err) {
+    msg.style.color = '#b91c1c';
+    msg.textContent = err.message;
+  }
+});
+</script>
+</body>
+</html>

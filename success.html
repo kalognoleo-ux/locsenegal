@@ -230,39 +230,41 @@ function showError(msg) {
   if (msg) document.getElementById('errorMsg').textContent = msg;
 }
 
-// ── Cas 1 : Activation via crédit (pas de paiement PayDunya)
+// ── Cas 1 : Retour après crédit abonnement (activation déjà faite côté serveur)
 if (isFree) {
   showSuccess(true);
 }
 // ── Cas 2 : Retour depuis PayDunya avec token
 else if (checkoutToken) {
   onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      showError('Connectez-vous pour finaliser votre paiement.');
+      return;
+    }
+    if (!annonceId) {
+      showError('Annonce introuvable dans l\'URL de retour.');
+      return;
+    }
     try {
+      const token = await user.getIdToken();
       const res = await fetch('/.netlify/functions/validate-payment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: checkoutToken,
-          annonceId: annonceId || null,
-          userId: user?.uid || null,
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ token: checkoutToken, annonceId }),
       });
       const data = await res.json();
 
       if (data.success && data.verified) {
         showSuccess(false);
       } else {
-        showError(data.message || 'Paiement en cours de traitement. Votre annonce sera activée sous peu.');
-        // Afficher succès différé si paiement reçu mais pas encore confirmé
-        setTimeout(() => {
-          document.getElementById('stateError').style.display = 'none';
-          showSuccess(false);
-        }, 5000);
+        showError(data.message || data.error || 'Paiement en cours de traitement. Réessayez dans quelques minutes.');
       }
-    } catch(err) {
+    } catch (err) {
       console.error('Erreur vérification:', err);
-      // En cas d'erreur réseau on affiche quand même le succès (webhook prendra le relais)
-      showSuccess(false);
+      showError('Impossible de vérifier le paiement. Contactez le support si le montant a été débité.');
     }
   });
 }

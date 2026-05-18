@@ -1,9 +1,11 @@
 {
-  "name": "locsenegal-functions",
-  "version": "1.0.0",
-  "description": "Netlify Functions for LocSenegal payments",
-  "main": "netlify/functions/validate-payment.js",
-  "dependencies": {},
+  "name": "locsenegal",
+  "version": "2.0.0",
+  "description": "LocSenegal — site + Netlify Functions sécurisées",
+  "private": true,
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  },
   "engines": {
     "node": "18.x"
   }
